@@ -16,9 +16,16 @@ def nova_transacao():
         # Extrai os dados enviados pelo formulário HTML original
         valor = float(request.form.get('valor', 0))
         tipo = request.form.get('tipo', 'SAIDA')
-        categoria_id = int(request.form.get('categoria'))
+
+        categoria_raw = request.form.get('categoria')
+        categoria_id = int(categoria_raw) if categoria_raw not in (None, '', 'None') else None
+
         data_str = request.form.get('data')
-        data = datetime.strptime(data_str, '%Y-%m-%d').date()
+        if data_str:
+            data = datetime.strptime(data_str, '%Y-%m-%d').date()
+        else:
+            data = datetime.now().date()
+
         descricao = request.form.get('descricao', '')
 
         # Executa a regra de negócio através do Caso de Uso

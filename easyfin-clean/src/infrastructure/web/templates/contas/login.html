@@ -1,0 +1,12 @@
+{% extends 'contas/base_auth.html' %}
+
+{% block content %}
+	<h2>Login</h2>
+	<form method="post" action="{{ url_for('contas.login') }}">
+		<label>Email: <input type="email" name="email" required></label><br>
+		<label>Senha: <input type="password" name="senha" required></label><br>
+		<button type="submit">Entrar</button>
+	</form>
+	<p>Não tem conta? <a href="{{ url_for('contas.cadastro') }}">Cadastre-se</a></p>
+{% endblock %}
+

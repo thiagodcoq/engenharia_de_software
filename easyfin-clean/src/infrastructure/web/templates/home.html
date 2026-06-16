@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-br">
+	<head>
+		<meta charset="utf-8" />
+		<title>EasyFin</title>
+	</head>
+	<body>
+		<h1>EasyFin - Organização Financeira</h1>
+		{% if user and user.is_authenticated %}
+			<p>Olá, {{ user.nome }}! (<a href="{{ url_for('contas.logout') }}">Sair</a>)</p>
+
+			<h2>Nova transação</h2>
+			<form method="post" action="{{ url_for('financas.nova_transacao') }}">
+				<label>Valor: <input type="number" step="0.01" name="valor" required></label><br>
+				<label>Tipo:
+					<select name="tipo">
+						<option value="SAIDA">SAIDA</option>
+						<option value="ENTRADA">ENTRADA</option>
+					</select>
+				</label><br>
+				<label>Categoria (id): <input type="text" name="categoria"></label><br>
+                <label>Data: <input type="date" name="data" value="{{ data_hoje }}"></label><br>
+				<label>Descrição: <input type="text" name="descricao"></label><br>
+				<button type="submit">Salvar</button>
+			</form>
+		{% else %}
+			<p><a href="{{ url_for('contas.login') }}">Entrar</a> ou <a href="{{ url_for('contas.cadastro') }}">Criar conta</a></p>
+		{% endif %}
+	</body>
+</html>
