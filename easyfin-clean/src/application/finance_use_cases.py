@@ -1,6 +1,6 @@
 from datetime import date
-from src.domain.entities import Transacao
-from src.domain.repositories import TransacaoRepositoryInterface
+from src.core.entities import Transacao
+from src.core.repositories import TransacaoRepositoryInterface
 
 class CriarTransacaoUseCase:
     def __init__(self, transacao_repo: TransacaoRepositoryInterface):

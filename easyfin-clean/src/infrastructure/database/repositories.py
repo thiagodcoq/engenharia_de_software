@@ -1,5 +1,5 @@
-from src.domain.repositories import TransacaoRepositoryInterface
-from src.domain.entities import Transacao as DomainTransacao
+from src.core.repositories import TransacaoRepositoryInterface
+from src.core.entities import Transacao as DomainTransacao
 from src.infrastructure.database.models import DBTransacao
 from src.infrastructure.database import db
 
