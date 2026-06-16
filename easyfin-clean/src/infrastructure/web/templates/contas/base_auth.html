@@ -1,20 +1,35 @@
 <!doctype html>
-<html lang="pt-br">
-	<head>
-		<meta charset="utf-8" />
-		<title>EasyFin - Autenticação</title>
-	</head>
-	<body>
-		{% with messages = get_flashed_messages() %}
-			{% if messages %}
-				<ul class="flashes">
-				{% for msg in messages %}
-					<li>{{ msg }}</li>
-				{% endfor %}
-				</ul>
-			{% endif %}
-		{% endwith %}
+<html lang="pt-pt">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyFin - Autenticação</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 flex items-center justify-center min-h-screen text-slate-800 font-sans">
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3">
+            {% for msg in messages %}
+                <div class="bg-blue-600 text-white px-5 py-3 rounded-lg shadow-lg flex items-center justify-between gap-4">
+                    <span class="text-sm font-medium">{{ msg }}</span>
+                    <button onclick="this.parentElement.remove()" class="text-white hover:text-slate-200 font-bold">&times;</button>
+                </div>
+            {% endfor %}
+            </div>
+            <script>
+                setTimeout(() => {
+                    const toasts = document.getElementById('toast-container');
+                    if (toasts) toasts.remove();
+                }, 5000);
+            </script>
+        {% endif %}
+    {% endwith %}
 
-		{% block content %}{% endblock %}
-	</body>
+    <div class="w-full max-w-md bg-white rounded-xl shadow-md p-8 m-4">
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">EasyFin</h1>
+        {% block content %}{% endblock %}
+    </div>
+</body>
 </html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyFin - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col">
+        <div class="p-6 border-b border-slate-100">
+            <h1 class="text-2xl font-bold text-indigo-600">EasyFin</h1>
+        </div>
+        <nav class="flex-1 p-4 space-y-2">
+            <a href="#" class="block p-3 rounded-lg bg-indigo-50 text-indigo-700 font-medium">Dashboard</a>
+            <a href="#" class="block p-3 rounded-lg text-slate-500 hover:bg-slate-50">Relatórios</a>
+        </nav>
+        <div class="p-4 border-t border-slate-200">
+            <span class="text-sm font-medium text-slate-600">{{ current_user.nome }}</span>
+            <a href="{{ url_for('contas.logout') }}" class="block text-sm text-red-500 mt-1 hover:underline">Sair</a>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto relative">
+        <div id="toast-container" class="absolute top-4 right-4 z-50 flex flex-col gap-2">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for msg in messages %}
+                        <div class="toast bg-slate-800 text-white px-6 py-3 rounded-lg shadow-lg flex items-center transition-opacity duration-300">
+                            <span>{{ msg }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <div class="p-6 md:p-10 w-full max-w-6xl mx-auto">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
