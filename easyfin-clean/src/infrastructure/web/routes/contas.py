@@ -1,18 +1,26 @@
-from datetime import date # <-- 1. Adicione este import lá no topo
+from datetime import date
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from src.infrastructure.database import db
 from src.infrastructure.database.models import DBUsuario
 from flask_login import login_user, logout_user, login_required, current_user
 
+# Importe o repositório no topo do arquivo
+from src.infrastructure.database.repositories import SQLAlchemyTransacaoRepository
+
 contas_bp = Blueprint('contas', __name__)
 
 @contas_bp.route('/')
 def home():
-    # 2. Capture a data de hoje formatada
     data_hoje = date.today().strftime('%Y-%m-%d')
+    transacoes = []
     
-    # 3. Envie a variável data_hoje para o seu template junto com o user
-    return render_template('home.html', user=current_user, data_hoje=data_hoje)
+    # Se o usuário estiver logado, busca as transações dele no banco
+    if current_user.is_authenticated:
+        repo = SQLAlchemyTransacaoRepository()
+        transacoes = repo.buscar_por_usuario(current_user.id)
+        
+    # Envie a variável "transacoes" para o template
+    return render_template('home.html', user=current_user, data_hoje=data_hoje, transacoes=transacoes)
 
 
 @contas_bp.route('/login/', methods=['GET', 'POST'])

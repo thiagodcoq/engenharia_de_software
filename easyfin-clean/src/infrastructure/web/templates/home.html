@@ -6,6 +6,17 @@
 	</head>
 	<body>
 		<h1>EasyFin - Organização Financeira</h1>
+		
+		{% with messages = get_flashed_messages() %}
+			{% if messages %}
+				<ul style="color: blue;">
+				{% for msg in messages %}
+					<li>{{ msg }}</li>
+				{% endfor %}
+				</ul>
+			{% endif %}
+		{% endwith %}
+
 		{% if user and user.is_authenticated %}
 			<p>Olá, {{ user.nome }}! (<a href="{{ url_for('contas.logout') }}">Sair</a>)</p>
 
@@ -23,6 +34,21 @@
 				<label>Descrição: <input type="text" name="descricao"></label><br>
 				<button type="submit">Salvar</button>
 			</form>
+
+			<hr>
+
+			<h2>Minhas Transações</h2>
+			<ul>
+				{% for tx in transacoes %}
+					<li>
+						<strong>{{ tx.data.strftime('%d/%m/%Y') }}</strong> - {{ tx.descricao }} | 
+						{{ tx.tipo }}: R$ {{ "%.2f"|format(tx.valor) }}
+					</li>
+				{% else %}
+					<li>Nenhuma transação encontrada no banco de dados.</li>
+				{% endfor %}
+			</ul>
+
 		{% else %}
 			<p><a href="{{ url_for('contas.login') }}">Entrar</a> ou <a href="{{ url_for('contas.cadastro') }}">Criar conta</a></p>
 		{% endif %}
