@@ -112,3 +112,22 @@ class ObterSaldoCategoriasUseCase:
                 disponivel=disponivel
             ))
         return resultado
+    
+class AtualizarTetoCategoriaUseCase:
+    def __init__(self, categoria_repo: CategoriaRepositoryInterface):
+        self.categoria_repo = categoria_repo
+
+    def executar(self, categoria_id: int, usuario_id: int, nome: str, teto: Optional[float] = None) -> Categoria:
+        if not nome or not nome.strip():
+            raise ValueError("O nome da categoria não pode ser vazio.")
+        
+        if teto is not None and teto < 0:
+            raise ValueError("O teto de gastos não pode ser um valor negativo.")
+            
+        categoria_atualizada = Categoria(
+            id=categoria_id,
+            usuario_id=usuario_id,
+            nome=nome.strip(),
+            teto=teto
+        )
+        return self.categoria_repo.salvar(categoria_atualizada)
