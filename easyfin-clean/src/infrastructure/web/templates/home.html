@@ -1,99 +1,176 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<div class="flex justify-between items-center mb-8">
-    <div>
-        <h2 class="text-2xl font-bold text-slate-800">Visão Geral</h2>
-        <p class="text-slate-500 text-sm">Acompanhe suas finanças de perto.</p>
-    </div>
+<div class="main-container">
     
-    <div class="flex gap-3">
-        <button onclick="toggleModal('modal-categoria')" class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors shadow-sm font-medium text-sm">
-            + Nova Categoria
-        </button>
-        <button onclick="toggleModal('modal-transacao')" class="px-4 py-2 bg-indigo-600 rounded-lg text-white hover:bg-indigo-700 transition-colors shadow-sm font-medium text-sm">
-            + Nova Transação
-        </button>
-    </div>
-</div>
-
-<section class="bg-white p-8 rounded-xl shadow-sm border border-slate-200 mb-8 min-h-[320px] flex flex-col items-center justify-center border-dashed border-2">
-    <div class="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mb-4">
-        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
-    </div>
-    <h3 class="text-lg font-medium text-slate-700">Gráficos de Evolução e Teto de Gastos</h3>
-    <p class="text-slate-400 text-sm mt-1">O dashboard analítico será renderizado aqui na próxima feature.</p>
-</section>
-
-<section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-    <div class="px-6 py-4 border-b border-slate-100">
-        <h3 class="font-semibold text-slate-800">Transações Recentes</h3>
-    </div>
-    <ul class="divide-y divide-slate-100">
-        {% for tx in transacoes %}
-            <li class="px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
-                <div class="flex flex-col">
-                    <span class="font-medium text-slate-800">{{ tx.descricao }}</span>
-                    <span class="text-xs text-slate-500">{{ tx.data.strftime('%d/%m/%Y') }}</span>
-                </div>
-                <div class="font-semibold {{ 'text-red-500' if tx.tipo == 'SAIDA' else 'text-emerald-500' }}">
-                    {{ '-' if tx.tipo == 'SAIDA' else '+' }} R$ {{ "%.2f"|format(tx.valor) }}
-                </div>
-            </li>
-        {% else %}
-            <li class="px-6 py-8 text-center text-slate-500 text-sm">Nenhuma transação encontrada.</li>
-        {% endfor %}
-    </ul>
-</section>
-
-<div id="modal-transacao" class="fixed inset-0 bg-slate-900/50 z-50 hidden flex items-center justify-center backdrop-blur-sm transition-opacity">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-slide-up">
-        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-            <h3 class="font-bold text-slate-800">Registrar Transação</h3>
-            <button onclick="toggleModal('modal-transacao')" class="text-slate-400 hover:text-slate-600 text-xl">&times;</button>
+    <header class="dashboard-header">
+        <div>
+            <h2 class="header-title">Visão Geral</h2>
+            <p class="header-subtitle">Acompanhe seus gastos e limites em um só lugar.</p>
         </div>
-        <form method="post" action="{{ url_for('financas.nova_transacao') }}" class="p-6 space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Valor (R$)</label>
-                    <input type="number" step="0.01" name="valor" required class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+        <div class="btn-group">
+            <button onclick="toggleModal('modal-categoria')" class="btn btn-secondary">
+                + Nova Categoria
+            </button>
+            <button onclick="toggleModal('modal-transacao')" class="btn btn-primary">
+                + Nova Transação
+            </button>
+        </div>
+    </header>
+
+    <section class="dashboard-section" style="padding: 3rem; text-align: center; border-style: dashed; border-width: 2px;">
+        <h3 style="color: #475569; font-weight: 500;">Espaço Reservado para Análise Visual</h3>
+        <p style="color: #94a3b8; font-size: 0.875rem; margin-top: 0.25rem;">Os gráficos consolidados serão implementados aqui.</p>
+    </section>
+
+    <section class="dashboard-section">
+        <div class="section-header">
+            <h3 class="section-title">Limites de Gastos por Categoria</h3>
+        </div>
+        <table class="fin-table">
+            <thead>
+                <tr>
+                    <th>Categoria</th>
+                    <th>Limite Estipulado (Teto)</th>
+                    <th>Uso do Orçamento</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat in categorias %}
+                    <tr>
+                        <td style="font-weight: 500;">{{ cat.nome }}</td>
+                        <td>
+                            {% if cat.teto %}
+                                R$ {{ "%.2f"|format(cat.teto) }}
+                            {% else %}
+                                <span style="color: #94a3b8; font-style: italic;">Sem Limite</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if cat.teto %}
+                                <div class="progress-container">
+                                    <div class="progress-track">
+                                        <!-- Estilo inline temporário apenas para simular a largura da porcentagem -->
+                                        <div class="progress-bar" style="width: 29%;"></div>
+                                    </div>
+                                    <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;">29%</span>
+                                </div>
+                            {% else %}
+                                <span style="color: #94a3b8;">--</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: #64748b; padding: 2rem;">
+                            Nenhuma categoria cadastrada. Comece adicionando uma acima.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <section class="dashboard-section">
+        <div class="section-header">
+            <h3 class="section-title">Transações Recentes</h3>
+        </div>
+        <table class="fin-table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Descrição</th>
+                    <th>Tipo</th>
+                    <th>Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in transacoes %}
+                    <tr>
+                        <td class="text-muted">{{ tx.data.strftime('%d/%m/%Y') }}</td>
+                        <td style="font-weight: 500;">{{ tx.descricao }}</td>
+                        <td class="text-muted">{{ tx.tipo }}</td>
+                        <td class="{{ 'text-danger' if tx.tipo == 'SAIDA' else 'text-success' }}">
+                            {{ '-' if tx.tipo == 'SAIDA' else '+' }} R$ {{ "%.2f"|format(tx.valor) }}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #64748b; padding: 2rem;">
+                            Nenhuma transação registrada.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <div id="modal-transacao" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Registrar Transação</h3>
+                <button onclick="toggleModal('modal-transacao')" class="modal-close">&times;</button>
+            </div>
+            <form method="post" action="{{ url_for('financas.nova_transacao') }}" class="form-body">
+                <div class="form-row">
+                    <div>
+                        <label class="form-label">Valor (R$)</label>
+                        <input type="number" step="0.01" name="valor" required class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Tipo</label>
+                        <select name="tipo" class="form-input">
+                            <option value="SAIDA">Saída</option>
+                            <option value="ENTRADA">Entrada</option>
+                        </select>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Tipo</label>
-                    <select name="tipo" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
-                        <option value="SAIDA">Saída</option>
-                        <option value="ENTRADA">Entrada</option>
+                <div class="form-group">
+                    <label class="form-label">Categoria</label>
+                    <select name="categoria" class="form-input">
+                        <option value="">-- Sem Categoria --</option>
+                        {% for cat in categorias %}
+                            <option value="{{ cat.id }}">{{ cat.nome }}</option>
+                        {% endfor %}
                     </select>
                 </div>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Categoria</label>
-                <select name="categoria" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-                    <option value="">-- Sem Categoria --</option>
-                    {% for cat in categorias %}
-                        <option value="{{ cat.id }}">{{ cat.nome }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="col-span-2">
-                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Descrição</label>
-                    <input type="text" name="descricao" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                <div class="form-group">
+                    <label class="form-label">Descrição</label>
+                    <input type="text" name="descricao" class="form-input">
                 </div>
-                <div class="col-span-2">
-                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Data</label>
-                    <input type="date" name="data" value="{{ data_hoje }}" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                <div class="form-group">
+                    <label class="form-label">Data</label>
+                    <input type="date" name="data" value="{{ data_hoje }}" class="form-input">
                 </div>
-            </div>
-            <div class="pt-4 flex justify-end gap-3">
-                <button type="button" onclick="toggleModal('modal-transacao')" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors font-medium text-sm">Cancelar</button>
-                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-sm shadow-sm">Salvar Transação</button>
-            </div>
-        </form>
+                <div class="form-actions">
+                    <button type="button" onclick="toggleModal('modal-transacao')" class="btn btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
     </div>
+
+    <div id="modal-categoria" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nova Categoria</h3>
+                <button onclick="toggleModal('modal-categoria')" class="modal-close">&times;</button>
+            </div>
+            <form method="post" action="{{ url_for('financas.nova_categoria') }}" class="form-body">
+                <div class="form-group">
+                    <label class="form-label">Nome da Categoria</label>
+                    <input type="text" name="nome" required class="form-input" placeholder="Ex: Alimentação, Transporte">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Teto de Gastos / Limite (Opcional)</label>
+                    <input type="number" step="0.01" name="teto" class="form-input" placeholder="Ex: 500.00">
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="toggleModal('modal-categoria')" class="btn btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Categoria</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </div>
-
-<div id="modal-categoria" class="fixed inset-0 bg-slate-900/50 z-50 hidden flex items-center justify-center backdrop-blur-sm transition-opacity">
-    </div>
-
 {% endblock %}
