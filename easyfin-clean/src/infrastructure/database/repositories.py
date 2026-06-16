@@ -1,8 +1,8 @@
-# src/infrastructure/database/repositories.py
 from typing import List
-from src.core.repositories import TransacaoRepositoryInterface
-from src.core.entities import Transacao as DomainTransacao
-from src.infrastructure.database.models import DBTransacao
+from src.core.repositories import CategoriaRepositoryInterface, TransacaoRepositoryInterface
+from src.core.entities import Transacao as DomainTransacao, Categoria as DomainCategoria
+
+from src.infrastructure.database.models import DBTransacao, DBCategoria
 from src.infrastructure.database import db
 
 class SQLAlchemyTransacaoRepository(TransacaoRepositoryInterface):
@@ -57,3 +57,34 @@ class SQLAlchemyTransacaoRepository(TransacaoRepositoryInterface):
             db.session.commit()
             return True
         return False
+    
+class SQLAlchemyCategoriaRepository(CategoriaRepositoryInterface):
+    def buscar_por_usuario(self, usuario_id: int) -> List[DomainCategoria]:
+        db_categorias = DBCategoria.query.filter_by(usuario_id=usuario_id).order_by(DBCategoria.nome).all()
+        
+        return [
+            DomainCategoria(
+                id=cat.id,
+                usuario_id=cat.usuario_id,
+                nome=cat.nome,
+                teto=float(cat.teto) if cat.teto else None
+            ) for cat in db_categorias
+        ]
+    
+    def salvar(self, categoria: DomainCategoria) -> DomainCategoria:
+        if categoria.id:
+            db_cat = DBCategoria.query.filter_by(id=categoria.id, usuario_id=categoria.usuario_id).first()
+            if db_cat:
+                db_cat.nome = categoria.nome
+                db_cat.teto = categoria.teto
+        else:
+            db_cat = DBCategoria(
+                usuario_id=categoria.usuario_id,
+                nome=categoria.nome,
+                teto=categoria.teto
+            )
+            db.session.add(db_cat)
+            
+        db.session.commit()
+        categoria.id = db_cat.id
+        return categoria

@@ -1,11 +1,12 @@
 from datetime import date
+from src.application.finance_use_cases import ListarCategoriasUseCase
+from src.application.finance_use_cases import ListarCategoriasUseCase
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from src.infrastructure.database import db
 from src.infrastructure.database.models import DBUsuario
 from flask_login import login_user, logout_user, login_required, current_user
 
-# Importe o repositório no topo do arquivo
-from src.infrastructure.database.repositories import SQLAlchemyTransacaoRepository
+from src.infrastructure.database.repositories import SQLAlchemyTransacaoRepository, SQLAlchemyCategoriaRepository
 
 contas_bp = Blueprint('contas', __name__)
 
@@ -13,15 +14,25 @@ contas_bp = Blueprint('contas', __name__)
 def home():
     data_hoje = date.today().strftime('%Y-%m-%d')
     transacoes = []
+    categorias = []
     
-    # Se o usuário estiver logado, busca as transações dele no banco
     if current_user.is_authenticated:
-        repo = SQLAlchemyTransacaoRepository()
-        transacoes = repo.buscar_por_usuario(current_user.id)
+        # Busca transações
+        repo_tx = SQLAlchemyTransacaoRepository()
+        transacoes = repo_tx.buscar_por_usuario(current_user.id)
         
-    # Envie a variável "transacoes" para o template
-    return render_template('home.html', user=current_user, data_hoje=data_hoje, transacoes=transacoes)
-
+        # Busca categorias através do Use Case
+        repo_cat = SQLAlchemyCategoriaRepository()
+        listar_categorias_uc = ListarCategoriasUseCase(repo_cat)
+        categorias = listar_categorias_uc.executar(current_user.id)
+        
+    return render_template(
+        'home.html', 
+        user=current_user, 
+        data_hoje=data_hoje, 
+        transacoes=transacoes,
+        categorias=categorias
+    )
 
 @contas_bp.route('/login/', methods=['GET', 'POST'])
 def login():

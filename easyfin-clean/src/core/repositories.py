@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
-from .entities import Transacao
+from typing import List
+from .entities import Transacao, Categoria 
 
 class TransacaoRepositoryInterface(ABC):
     @abstractmethod
@@ -13,4 +13,13 @@ class TransacaoRepositoryInterface(ABC):
 
     @abstractmethod
     def deletar(self, transacao_id: int, usuario_id: int) -> bool:
+        pass
+
+class CategoriaRepositoryInterface(ABC):
+    @abstractmethod
+    def buscar_por_usuario(self, usuario_id: int) -> List[Categoria]:
+        pass
+    
+    @abstractmethod
+    def salvar(self, categoria: Categoria) -> Categoria:
         pass
