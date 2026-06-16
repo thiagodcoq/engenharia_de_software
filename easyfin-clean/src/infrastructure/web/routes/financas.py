@@ -1,4 +1,4 @@
-from flask import Blueprint, request, redirect, url_for, flash, render_with_template
+from flask import Blueprint, request, redirect, url_for, flash
 from flask_login import current_user, login_required
 from datetime import datetime
 
