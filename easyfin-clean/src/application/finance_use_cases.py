@@ -1,6 +1,6 @@
 from datetime import date
 from typing import List, Optional
-from src.core.entities import Categoria, CategoriaSaldoDTO, Transacao
+from src.core.entities import Categoria, CategoriaSaldoDTO, SaldoGeralDTO, Transacao
 from src.core.repositories import CategoriaRepositoryInterface, TransacaoRepositoryInterface
 
 class CriarTransacaoUseCase:
@@ -131,3 +131,26 @@ class AtualizarTetoCategoriaUseCase:
             teto=teto
         )
         return self.categoria_repo.salvar(categoria_atualizada)
+    
+class CalcularSaldoTotalMesUseCase:
+    def __init__(self, transacao_repo: TransacaoRepositoryInterface):
+        self.transacao_repo = transacao_repo
+
+    def executar(self, usuario_id: int) -> SaldoGeralDTO:
+        transacoes = self.transacao_repo.buscar_todas_por_usuario(usuario_id)
+        
+        total_entradas = 0.0
+        total_saidas = 0.0
+        
+        for tx in transacoes:
+            if tx.tipo == "ENTRADA":
+                total_entradas += tx.valor
+            elif tx.tipo == "SAIDA":
+                total_saidas += tx.valor
+                
+        saldo_total = total_entradas - total_saidas
+        return SaldoGeralDTO(
+            saldo_total=saldo_total,
+            total_entradas=total_entradas,
+            total_saidas=total_saidas
+        )

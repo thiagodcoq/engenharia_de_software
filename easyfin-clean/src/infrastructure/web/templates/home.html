@@ -20,6 +20,21 @@
 		{% if user and user.is_authenticated %}
 			<p>Olá, {{ user.nome }}! (<a href="{{ url_for('contas.logout') }}">Sair</a>)</p>
 
+			<div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #ddd; max-width: 400px;">
+				<h2 style="margin: 0 0 10px 0;">
+					Saldo do Mês: 
+					{% if saldo_geral.saldo_total < 0 %}
+						<span>R$ {{ "%.2f"|format(saldo_geral.saldo_total) }}</span>
+					{% else %}
+						<span>R$ {{ "%.2f"|format(saldo_geral.saldo_total) }}</span>
+					{% endif %}
+				</h2>
+				<span>
+					Receitas: R$ {{ "%.2f"|format(saldo_geral.total_entradas) }} | 
+					Despesas: R$ {{ "%.2f"|format(saldo_geral.total_saidas) }}
+				</span>
+			</div>
+
 			<h2>Saldos por Categoria</h2>
 			<table border="1" cellpadding="5" style="border-collapse: collapse; margin-bottom: 20px;">
 				<thead>
