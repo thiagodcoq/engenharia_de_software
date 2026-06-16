@@ -62,6 +62,12 @@ R$ {{ "{:,.2f}".format(v | float).replace(",", "X").replace(".", ",").replace("X
 					<li>
 						<strong>{{ tx.data.strftime('%d/%m/%Y') }}</strong> - {{ tx.descricao }} | 
 						{{ tx.tipo }}: R$ {{ "%.2f"|format(tx.valor) }}
+					
+						<a href="{{ url_for('financas.editar_transacao', transacao_id=tx.id) }}">[Editar]</a>
+                        <form action="{{ url_for('financas.excluir_transacao', transacao_id=tx.id) }}" method="post" style="display:inline;">
+                            <button type="submit" onclick="return confirm('Tem certeza que deseja excluir esta transação?');">[Excluir]</button>
+                        </form>
+					
 					</li>
 				{% else %}
 					<li>Nenhuma transação encontrada no banco de dados.</li>
