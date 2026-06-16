@@ -27,6 +27,38 @@ class CriarTransacaoUseCase:
             data=data
         )
         return self.transacao_repo.salvar(nova_tx)
+    
+class DeletarTransacaoUseCase:
+    def __init__(self, transacao_repo: TransacaoRepositoryInterface):
+        self.transacao_repo = transacao_repo
+
+    def executar(self, transacao_id: int, usuario_id: int) -> bool:
+        return self.transacao_repo.deletar(transacao_id, usuario_id)
+
+class EditarTransacaoUseCase:
+    def __init__(self, transacao_repo: TransacaoRepositoryInterface):
+        self.transacao_repo = transacao_repo
+
+    def executar(self, transacao_id: int, usuario_id: int, categoria_id: Optional[int], valor: float, tipo: str, data: date, descricao: str):
+        if valor <= 0:
+            raise ValueError("Valor deve ser maior que zero")
+            
+        if tipo == 'SAIDA' and not categoria_id:
+            raise ValueError("A categoria é obrigatória para o registro de uma despesa (SAIDA).")
+        
+        if not descricao:
+            descricao = "Transação"
+
+        transacao_atualizada = Transacao(
+            id=transacao_id,
+            usuario_id=usuario_id,
+            categoria_id=categoria_id,
+            descricao=descricao,
+            valor=valor,
+            tipo=tipo,
+            data=data
+        )
+        return self.transacao_repo.salvar(transacao_atualizada)
 
 class ListarCategoriasUseCase:
     def __init__(self, categoria_repo: CategoriaRepositoryInterface):

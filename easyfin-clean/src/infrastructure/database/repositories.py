@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from src.core.repositories import CategoriaRepositoryInterface, TransacaoRepositoryInterface
 from src.core.entities import Transacao as DomainTransacao, Categoria as DomainCategoria
 
@@ -48,6 +48,20 @@ class SQLAlchemyTransacaoRepository(TransacaoRepositoryInterface):
                 data=tx.data
             ) for tx in db_txs
         ]
+    
+    def buscar_por_id(self, transacao_id: int, usuario_id: int) -> Optional[DomainTransacao]:
+        db_tx = DBTransacao.query.filter_by(id=transacao_id, usuario_id=usuario_id).first()
+        if db_tx:
+            return DomainTransacao(
+                id=db_tx.id,
+                usuario_id=db_tx.usuario_id,
+                categoria_id=db_tx.categoria_id,
+                descricao=db_tx.descricao,
+                valor=float(db_tx.valor),
+                tipo=db_tx.tipo,
+                data=db_tx.data
+            )
+        return None
 
     def deletar(self, transacao_id: int, usuario_id: int) -> bool:
         db_tx = DBTransacao.query.filter_by(id=transacao_id, usuario_id=usuario_id).first()
