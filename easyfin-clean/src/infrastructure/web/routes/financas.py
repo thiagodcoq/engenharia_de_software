@@ -3,18 +3,20 @@ from flask_login import current_user, login_required
 from datetime import datetime
 
 from src.infrastructure.database.repositories import SQLAlchemyTransacaoRepository, SQLAlchemyCategoriaRepository
-from src.application.finance_use_cases import CriarTransacaoUseCase, CriarCategoriaUseCase, DeletarTransacaoUseCase, EditarTransacaoUseCase, ListarCategoriasUseCase
+from src.application.finance_use_cases import AtualizarTetoCategoriaUseCase, CriarTransacaoUseCase, CriarCategoriaUseCase, DeletarTransacaoUseCase, EditarTransacaoUseCase, ListarCategoriasUseCase
 
 financas_bp = Blueprint('financas', __name__)
 
 categoria_repo = SQLAlchemyCategoriaRepository()
-criar_categoria_use_case = CriarCategoriaUseCase(categoria_repo)
-
 transacao_repo = SQLAlchemyTransacaoRepository()
+
+criar_categoria_use_case = CriarCategoriaUseCase(categoria_repo)
+listar_categorias_uc = ListarCategoriasUseCase(categoria_repo)
+atualizar_teto_use_case = AtualizarTetoCategoriaUseCase(categoria_repo)
+
 criar_tx_use_case = CriarTransacaoUseCase(transacao_repo)
 deletar_tx_use_case = DeletarTransacaoUseCase(transacao_repo)
 editar_tx_use_case = EditarTransacaoUseCase(transacao_repo)
-listar_categorias_uc = ListarCategoriasUseCase(categoria_repo)
 
 
 @financas_bp.route('/transacao/nova/', methods=['POST'])
@@ -71,6 +73,28 @@ def nova_categoria():
         
     return redirect(url_for('contas.home'))
 
+
+@financas_bp.route('/categoria/<int:categoria_id>/editar/', methods=['POST'])
+@login_required
+def editar_categoria(categoria_id):
+    try:
+        nome = request.form.get('nome')
+        teto_raw = request.form.get('teto')
+        teto = float(teto_raw) if teto_raw and teto_raw.strip() else None
+
+        atualizar_teto_use_case.executar(
+            categoria_id=categoria_id,
+            usuario_id=current_user.id,
+            nome=nome,
+            teto=teto
+        )
+        flash("Teto da categoria atualizado com sucesso!")
+    except ValueError as e:
+        flash(str(e))
+    except Exception:
+        flash("Erro ao salvar alteração da categoria.")
+        
+    return redirect(url_for('contas.home'))
 
 @financas_bp.route('/transacao/<int:transacao_id>/excluir/', methods=['POST'])
 @login_required
