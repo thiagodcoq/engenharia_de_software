@@ -7,11 +7,13 @@ class CriarTransacaoUseCase:
     def __init__(self, transacao_repo: TransacaoRepositoryInterface):
         self.transacao_repo = transacao_repo
 
-    def executar(self, usuario_id: int, categoria_id: int, valor: float, tipo: str, data: date, descricao: str):
+    def executar(self, usuario_id: int, categoria_id: Optional[int], valor: float, tipo: str, data: date, descricao: str):
         if valor <= 0:
             raise ValueError("Valor deve ser maior que zero")
+            
+        if tipo == 'SAIDA' and not categoria_id:
+            raise ValueError("A categoria é obrigatória para o registro de uma despesa (SAIDA).")
         
-        # Regra de negócio herdada do formulário Django: se não houver descrição, usa o nome da categoria ou padrão
         if not descricao:
             descricao = "Transação"
 
