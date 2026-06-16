@@ -25,3 +25,11 @@ class Transacao:
     valor: float
     tipo: str  # "ENTRADA" ou "SAIDA"
     data: date
+
+@dataclass
+class CategoriaSaldoDTO:
+    id: Optional[int]
+    nome: str
+    teto: Optional[float]
+    gastos: float
+    disponivel: Optional[float]

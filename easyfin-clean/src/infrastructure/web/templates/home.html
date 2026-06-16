@@ -26,6 +26,42 @@ R$ {{ "{:,.2f}".format(v | float).replace(",", "X").replace(".", ",").replace("X
 		{% if user and user.is_authenticated %}
 			<p>Olá, {{ user.nome }}! (<a href="{{ url_for('contas.logout') }}">Sair</a>)</p>
 
+			<h2>Saldos por Categoria</h2>
+			<table border="1" cellpadding="5" style="border-collapse: collapse; margin-bottom: 20px;">
+				<thead>
+					<tr>
+						<th>Categoria</th>
+						<th>Teto de Gastos</th>
+						<th>Gastos Consolidados</th>
+						<th>Saldo Disponível</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for cat in categorias %}
+						<tr>
+							<td><strong>{{ cat.nome }}</strong></td>
+							<td>{% if cat.teto is not none %}R$ {{ "%.2f"|format(cat.teto) }}{% else %}Sem Teto{% endif %}</td>
+							<td>R$ {{ "%.2f"|format(cat.gastos) }}</td>
+							<td>
+								{% if cat.disponivel is not none %}
+									{% if cat.disponivel < 0 %}
+										<span style="color: red; font-weight: bold;">⚠️ R$ {{ "%.2f"|format(cat.disponivel) }}</span>
+									{% else %}
+										<span style="color: green;">R$ {{ "%.2f"|format(cat.disponivel) }}</span>
+									{% endif %}
+								{% else %}
+									-
+								{% endif %}
+							</td>
+						</tr>
+					{% else %}
+						<tr>
+							<td colspan="4">Nenhuma categoria cadastrada.</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+
 			<h2>Nova Categoria</h2>
             <form method="post" action="{{ url_for('financas.nova_categoria') }}">
                 <label>Nome da Categoria: <input type="text" name="nome" required></label><br>

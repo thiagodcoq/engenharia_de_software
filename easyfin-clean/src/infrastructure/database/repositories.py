@@ -49,6 +49,20 @@ class SQLAlchemyTransacaoRepository(TransacaoRepositoryInterface):
             ) for tx in db_txs
         ]
     
+    def buscar_todas_por_usuario(self, usuario_id: int) -> List[DomainTransacao]:
+        db_txs = DBTransacao.query.filter_by(usuario_id=usuario_id).all()
+        return [
+            DomainTransacao(
+                id=tx.id,
+                usuario_id=tx.usuario_id,
+                categoria_id=tx.categoria_id,
+                descricao=tx.descricao,
+                valor=float(tx.valor),
+                tipo=tx.tipo,
+                data=tx.data
+            ) for tx in db_txs
+        ]
+
     def buscar_por_id(self, transacao_id: int, usuario_id: int) -> Optional[DomainTransacao]:
         db_tx = DBTransacao.query.filter_by(id=transacao_id, usuario_id=usuario_id).first()
         if db_tx:
