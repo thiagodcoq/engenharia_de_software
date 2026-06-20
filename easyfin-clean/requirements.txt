@@ -4,3 +4,5 @@ Flask-Login==0.6.3
 Werkzeug==3.0.1
 psycopg2-binary==2.9.12
 email-validator==2.1.1
+pytest==7.4.3
+pytest-cov==4.1.0
