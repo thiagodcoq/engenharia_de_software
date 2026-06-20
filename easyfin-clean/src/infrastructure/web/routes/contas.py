@@ -12,24 +12,31 @@ contas_bp = Blueprint('contas', __name__)
 
 @contas_bp.route('/')
 def home():
-    data_hoje = date.today().strftime('%Y-%m-%d')
-    transacoes = []
-    categorias = []
-    
+    # A raiz é apenas um "porteiro": nunca renderiza tela própria.
+    # Logado -> menu principal (dashboard); deslogado -> login.
     if current_user.is_authenticated:
-        # Busca transações
-        repo_tx = SQLAlchemyTransacaoRepository()
-        transacoes = repo_tx.buscar_por_usuario(current_user.id)
-        
-        # Busca categorias através do Use Case
-        repo_cat = SQLAlchemyCategoriaRepository()
-        listar_categorias_uc = ListarCategoriasUseCase(repo_cat)
-        categorias = listar_categorias_uc.executar(current_user.id)
-        
+        return redirect(url_for('contas.dashboard'))
+    return redirect(url_for('contas.login'))
+
+
+@contas_bp.route('/dashboard/')
+@login_required
+def dashboard():
+    data_hoje = date.today().strftime('%Y-%m-%d')
+
+    # Busca transações
+    repo_tx = SQLAlchemyTransacaoRepository()
+    transacoes = repo_tx.buscar_por_usuario(current_user.id)
+
+    # Busca categorias através do Use Case
+    repo_cat = SQLAlchemyCategoriaRepository()
+    listar_categorias_uc = ListarCategoriasUseCase(repo_cat)
+    categorias = listar_categorias_uc.executar(current_user.id)
+
     return render_template(
-        'home.html', 
-        user=current_user, 
-        data_hoje=data_hoje, 
+        'home.html',
+        user=current_user,
+        data_hoje=data_hoje,
         transacoes=transacoes,
         categorias=categorias
     )
@@ -43,7 +50,7 @@ def login():
         if user and user.check_password(senha):
             login_user(user)
             flash('Login realizado com sucesso!')
-            return redirect(url_for('contas.home'))
+            return redirect(url_for('contas.dashboard'))
         flash('Email ou senha inválidos')
     return render_template('contas/login.html')
 
@@ -73,6 +80,6 @@ def cadastro():
         db.session.commit()
         login_user(user)
         flash('Conta criada e usuário logado')
-        return redirect(url_for('contas.home'))
+        return redirect(url_for('contas.dashboard'))
 
     return render_template('contas/cadastro.html')
