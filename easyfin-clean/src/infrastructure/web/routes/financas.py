@@ -13,10 +13,13 @@ criar_tx_use_case = CriarTransacaoUseCase(transacao_repo)
 categoria_repo = SQLAlchemyCategoriaRepository()
 criar_categoria_use_case = CriarCategoriaUseCase(categoria_repo)
 
+
+
 @financas_bp.route('/transacao/nova/', methods=['POST'])
 @login_required
 def nova_transacao():
     try:
+        # Extrai os dados enviados pelo formulário HTML original
         valor = float(request.form.get('valor', 0))
         tipo = request.form.get('tipo', 'SAIDA')
 
@@ -31,6 +34,7 @@ def nova_transacao():
 
         descricao = request.form.get('descricao', '')
 
+        # Executa a regra de negócio através do Caso de Uso
         criar_tx_use_case.executar(
             usuario_id=current_user.id,
             categoria_id=categoria_id,
