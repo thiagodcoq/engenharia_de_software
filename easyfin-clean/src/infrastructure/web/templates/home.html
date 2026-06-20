@@ -1,70 +1,132 @@
-<!doctype html>
-<html lang="pt-br">
-	<head>
-		<meta charset="utf-8" />
-		<title>EasyFin</title>
-	</head>
-	<body>
-		<h1>EasyFin - Organização Financeira</h1>
-		
-		{% with messages = get_flashed_messages() %}
-			{% if messages %}
-				<ul style="color: blue;">
+{% extends 'base_app.html' %}
+{% import '_cat_icones.html' as icones %}
+
+{# Formata número no padrão brasileiro: 12450.5 -> R$ 12.450,50 #}
+{% macro brl(v) -%}
+R$ {{ "{:,.2f}".format(v | float).replace(",", "X").replace(".", ",").replace("X", ".") }}
+{%- endmacro %}
+
+{% block title %}Início — EasyFin{% endblock %}
+
+{% block body %}
+<div class="app">
+	{% include '_topbar.html' %}
+
+	<!-- Mensagens flash -->
+	{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			<ul class="flashes">
 				{% for msg in messages %}
 					<li>{{ msg }}</li>
 				{% endfor %}
-				</ul>
-			{% endif %}
-		{% endwith %}
-
-		{% if user and user.is_authenticated %}
-			<p>Olá, {{ user.nome }}! (<a href="{{ url_for('contas.logout') }}">Sair</a>)</p>
-
-			<h2>Nova Categoria</h2>
-            <form method="post" action="{{ url_for('financas.nova_categoria') }}">
-                <label>Nome da Categoria: <input type="text" name="nome" required></label><br>
-                <label>Teto de Gastos (Opcional): <input type="number" step="0.01" name="teto"></label><br>
-                <button type="submit">Salvar Categoria</button>
-            </form>
-
-			<h2>Nova transação</h2>
-			<form method="post" action="{{ url_for('financas.nova_transacao') }}">
-				<label>Valor: <input type="number" step="0.01" name="valor" required></label><br>
-				<label>Tipo:
-					<select name="tipo">
-						<option value="SAIDA">SAIDA</option>
-						<option value="ENTRADA">ENTRADA</option>
-					</select>
-				</label><br>
-				<label>Categoria: 
-					<select name="categoria">
-						<option value="">-- Sem Categoria --</option>
-						{% for cat in categorias %}
-							<option value="{{ cat.id }}">{{ cat.nome }}</option>
-						{% endfor %}
-					</select>
-				</label><br>
-                <label>Data: <input type="date" name="data" value="{{ data_hoje }}"></label><br>
-				<label>Descrição: <input type="text" name="descricao"></label><br>
-				<button type="submit">Salvar</button>
-			</form>
-
-			<hr>
-
-			<h2>Minhas Transações</h2>
-			<ul>
-				{% for tx in transacoes %}
-					<li>
-						<strong>{{ tx.data.strftime('%d/%m/%Y') }}</strong> - {{ tx.descricao }} | 
-						{{ tx.tipo }}: R$ {{ "%.2f"|format(tx.valor) }}
-					</li>
-				{% else %}
-					<li>Nenhuma transação encontrada no banco de dados.</li>
-				{% endfor %}
 			</ul>
-
-		{% else %}
-			<p><a href="{{ url_for('contas.login') }}">Entrar</a> ou <a href="{{ url_for('contas.cadastro') }}">Criar conta</a></p>
 		{% endif %}
-	</body>
-</html>
+	{% endwith %}
+
+	<!-- Card de saldo -->
+	<section class="balance">
+		<div class="balance__label">Saldo Total</div>
+		<div class="balance__value">{{ brl(saldo_total) }}</div>
+		<div class="balance__pills">
+			<div class="pill">
+				<span class="pill__label">Entradas</span>
+				<span class="pill__value">+ {{ brl(total_entradas) }}</span>
+			</div>
+			<div class="pill">
+				<span class="pill__label">Saídas</span>
+				<span class="pill__value">- {{ brl(total_saidas) }}</span>
+			</div>
+		</div>
+	</section>
+
+	<!-- Lista de transações agrupadas por dia -->
+	{% for grupo in grupos %}
+		<section class="tx-group">
+			<h2 class="tx-group__label">{{ grupo.rotulo }}</h2>
+			<div class="tx-list">
+				{% for tx in grupo.transacoes %}
+					{% set is_entrada = tx.tipo == 'ENTRADA' %}
+					<div class="tx-item">
+						{% set nome_cat = categorias_map.get(tx.categoria_id) %}
+						<div class="tx-item__icon {{ 'tx-item__icon--income' if is_entrada else 'tx-item__icon--expense' }}" aria-hidden="true">
+							{% if nome_cat %}
+								{{ icones.icone_categoria(nome_cat) }}
+							{% elif is_entrada %}
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M12 19V5" />
+									<path d="m5 12 7-7 7 7" />
+								</svg>
+							{% else %}
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M12 5v14" />
+									<path d="m19 12-7 7-7-7" />
+								</svg>
+							{% endif %}
+						</div>
+						<div class="tx-item__body">
+							<span class="tx-item__title">
+								{{ nome_cat or 'Sem categoria' }}
+							</span>
+							{% if tx.descricao %}
+								<span class="tx-item__sub">{{ tx.descricao }}</span>
+							{% endif %}
+						</div>
+						<span class="tx-item__amount {{ 'tx-item__amount--income' if is_entrada else 'tx-item__amount--expense' }}">
+							{{ '+' if is_entrada else '-' }} {{ brl(tx.valor) }}
+						</span>
+					</div>
+				{% endfor %}
+			</div>
+		</section>
+	{% else %}
+		<div class="empty">
+			<p class="empty__title">Nenhuma transação ainda</p>
+			<p>Toque no botão <strong>+</strong> para registrar a primeira.</p>
+		</div>
+	{% endfor %}
+
+	<!-- FAB: abre o modal de nova transação -->
+	<button class="fab" type="button" data-open-modal="modal-tx" aria-label="Nova transação">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+			<path d="M12 5v14" />
+			<path d="M5 12h14" />
+		</svg>
+	</button>
+
+	<!-- Bottom nav (Início ativo; demais inertes por enquanto) -->
+	<nav class="bottom-nav">
+		<a class="nav-item nav-item--active" href="{{ url_for('contas.dashboard') }}">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+				<path d="m3 9.5 9-7 9 7" />
+				<path d="M9 22V12h6v10" />
+				<path d="M5 10v10h14V10" />
+			</svg>
+			Início
+		</a>
+		<a class="nav-item" href="{{ url_for('contas.extrato') }}">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M4 6h16" />
+				<path d="M4 12h16" />
+				<path d="M4 18h10" />
+			</svg>
+			Extrato
+		</a>
+		<a class="nav-item" href="{{ url_for('contas.orcamento') }}">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M3 3v18h18" />
+				<path d="m7 14 4-4 3 3 5-6" />
+			</svg>
+			Orçamento
+		</a>
+		<a class="nav-item" href="{{ url_for('contas.perfil') }}">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+				<circle cx="12" cy="8" r="4" />
+				<path d="M4 21a8 8 0 0 1 16 0" />
+			</svg>
+			Perfil
+		</a>
+	</nav>
+</div>
+
+{% include '_modais_transacao.html' %}
+{% endblock %}

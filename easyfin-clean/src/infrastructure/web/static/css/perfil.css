@@ -1,0 +1,241 @@
+/* ============================================================
+   EasyFin — Perfil (aba 4)
+   Depende de global.css (tokens) e dashboard.css (.app, .topbar,
+   .bottom-nav). Aqui só o que é específico do Perfil.
+   ============================================================ */
+
+/* ---------- Hero (avatar + nome + email) ---------- */
+.profile-hero {
+	text-align: center;
+	padding: 0.5rem 0 2rem;
+}
+
+.profile-avatar {
+	position: relative;
+	width: 6.5rem;
+	height: 6.5rem;
+	margin: 0 auto 1rem;
+}
+
+.profile-avatar__img {
+	width: 100%;
+	height: 100%;
+	border-radius: var(--radius-full);
+	background: var(--gradient-primary);
+	color: var(--on-primary);
+	display: grid;
+	place-items: center;
+	font-family: var(--font-display);
+	font-weight: 800;
+	font-size: 2.25rem;
+	/* anel roxo do mockup */
+	box-shadow: 0 0 0 4px var(--surface), 0 0 0 7px var(--primary-container);
+}
+
+.profile-avatar__edit {
+	position: absolute;
+	right: -2px;
+	bottom: -2px;
+	width: 2rem;
+	height: 2rem;
+	border-radius: var(--radius-full);
+	border: 3px solid var(--surface);
+	background: var(--primary-container);
+	color: var(--on-primary);
+	display: grid;
+	place-items: center;
+	cursor: pointer;
+}
+
+.profile-avatar__edit svg {
+	width: 0.875rem;
+	height: 0.875rem;
+}
+
+.profile-name {
+	font-family: var(--font-display);
+	font-weight: 800;
+	font-size: 1.5rem;
+	letter-spacing: -0.02em;
+	color: var(--on-background);
+	margin: 0;
+}
+
+.profile-email {
+	font-size: 0.875rem;
+	color: var(--on-surface-variant);
+	margin: 0.25rem 0 0;
+}
+
+/* ---------- Grupos de configuração ---------- */
+.settings-group {
+	margin-bottom: 1.75rem;
+}
+
+.settings-group__title {
+	font-family: var(--font-display);
+	font-weight: 700;
+	font-size: 1.0625rem;
+	color: var(--primary-container);
+	margin: 0 0 0.875rem 0.25rem;
+}
+
+.settings-card {
+	background: var(--surface-container-lowest);
+	border-radius: var(--radius-xl);
+	padding: 0.5rem 1rem;
+	box-shadow: var(--shadow-ambient);
+}
+
+/* Linha de item (sem divisórias — separação por espaço) */
+.settings-row {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 0.875rem 0;
+	width: 100%;
+	background: none;
+	border: none;
+	cursor: pointer;
+	text-align: left;
+	text-decoration: none;
+	color: inherit;
+}
+
+.settings-row__icon {
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: var(--radius-lg);
+	background: var(--surface-container-high);
+	color: var(--primary-container);
+	display: grid;
+	place-items: center;
+	flex-shrink: 0;
+}
+
+.settings-row__icon svg {
+	width: 1.25rem;
+	height: 1.25rem;
+}
+
+.settings-row__text {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+	min-width: 0;
+}
+
+.settings-row__title {
+	font-weight: 600;
+	font-size: 0.9375rem;
+	color: var(--on-background);
+}
+
+.settings-row__sub {
+	font-size: 0.75rem;
+	color: var(--on-surface-variant);
+}
+
+.settings-row__end {
+	margin-left: auto;
+	color: var(--on-surface-variant);
+	display: grid;
+	place-items: center;
+	flex-shrink: 0;
+}
+
+.settings-row__end svg {
+	width: 1.125rem;
+	height: 1.125rem;
+}
+
+/* ---------- Toggle (switch) ---------- */
+.switch {
+	margin-left: auto;
+	position: relative;
+	width: 3rem;
+	height: 1.75rem;
+	flex-shrink: 0;
+}
+
+.switch input {
+	position: absolute;
+	opacity: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	cursor: pointer;
+}
+
+.switch__track {
+	position: absolute;
+	inset: 0;
+	border-radius: var(--radius-full);
+	background: var(--surface-container-high);
+	transition: background 0.18s ease;
+}
+
+.switch__track::before {
+	content: "";
+	position: absolute;
+	top: 0.1875rem;
+	left: 0.1875rem;
+	width: 1.375rem;
+	height: 1.375rem;
+	border-radius: var(--radius-full);
+	background: var(--surface-container-lowest);
+	box-shadow: 0 1px 3px rgba(25, 27, 34, 0.2);
+	transition: transform 0.18s ease;
+}
+
+.switch input:checked + .switch__track {
+	background: var(--primary-container);
+}
+
+.switch input:checked + .switch__track::before {
+	transform: translateX(1.25rem);
+}
+
+/* ---------- Sair da conta ---------- */
+.logout-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.625rem;
+	width: 100%;
+	padding: 1rem;
+	border: none;
+	border-radius: var(--radius-full);
+	background: var(--tertiary-container);
+	color: #ffffff;
+	font-family: var(--font-body);
+	font-size: 0.9375rem;
+	font-weight: 700;
+	cursor: pointer;
+	text-decoration: none;
+	transition: transform 0.08s ease, filter 0.18s ease;
+}
+
+.logout-btn:hover {
+	filter: brightness(1.05);
+	text-decoration: none;
+}
+
+.logout-btn:active {
+	transform: scale(0.97);
+}
+
+.logout-btn svg {
+	width: 1.25rem;
+	height: 1.25rem;
+}
+
+/* ---------- Versão ---------- */
+.app-version {
+	text-align: center;
+	font-size: 0.6875rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--on-surface-variant);
+	margin: 1.25rem 0 0;
+}
