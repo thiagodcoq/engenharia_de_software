@@ -40,27 +40,7 @@ R$ {{ "{:,.2f}".format(v | float).replace(",", "X").replace(".", ",").replace("X
 					{% for cat in categorias %}
 						<tr>
 							<td><strong>{{ cat.nome }}</strong></td>
-							<td>
-								{% if cat.teto is not none %}
-									R$ {{ "%.2f"|format(cat.teto) }}
-									<button type="button" popovertarget="edit-cat-{{ cat.id }}" style="margin-left: 5px; cursor: pointer;">✏️</button>
-								{% else %}
-									<button type="button" popovertarget="edit-cat-{{ cat.id }}" style="cursor: pointer;">+ Definir limite</button>
-								{% endif %}
-
-								<div id="edit-cat-{{ cat.id }}" popover style="padding: 20px; border-radius: 8px; border: 1px solid #ccc; background-color: white;">
-									<h3>Ajustar Planejamento de Categoria</h3>
-									<form method="post" action="/categoria/{{ cat.id }}/editar/">
-										<input type="hidden" name="nome" value="{{ cat.nome }}">
-										<p>Categoria: <strong>{{ cat.nome }}</strong></p>
-										<label>Teto de Gastos: 
-											<input type="number" step="0.01" name="teto" value="{% if cat.teto is not none %}{{ cat.teto }}{% endif %}" placeholder="Deixe vazio para remover o limite">
-										</label>
-										<br><br>
-										<button type="submit">Confirmar</button>
-									</form>
-								</div>
-							</td>
+							<td>{% if cat.teto is not none %}R$ {{ "%.2f"|format(cat.teto) }}{% else %}Sem Teto{% endif %}</td>
 							<td>R$ {{ "%.2f"|format(cat.gastos) }}</td>
 							<td>
 								{% if cat.disponivel is not none %}
@@ -110,7 +90,6 @@ R$ {{ "{:,.2f}".format(v | float).replace(",", "X").replace(".", ",").replace("X
 				<label>Descrição: <input type="text" name="descricao"></label><br>
 				<button type="submit">Salvar</button>
 			</form>
-
 			<hr>
 
 			<h2>Minhas Transações</h2>
@@ -119,11 +98,12 @@ R$ {{ "{:,.2f}".format(v | float).replace(",", "X").replace(".", ",").replace("X
 					<li>
 						<strong>{{ tx.data.strftime('%d/%m/%Y') }}</strong> - {{ tx.descricao }} | 
 						{{ tx.tipo }}: R$ {{ "%.2f"|format(tx.valor) }}
-                        
-                        <a href="{{ url_for('financas.editar_transacao', transacao_id=tx.id) }}">[Editar]</a>
+					
+						<a href="{{ url_for('financas.editar_transacao', transacao_id=tx.id) }}">[Editar]</a>
                         <form action="{{ url_for('financas.excluir_transacao', transacao_id=tx.id) }}" method="post" style="display:inline;">
-                            <button type="submit">[Excluir]</button>
+                            <button type="submit" onclick="return confirm('Tem certeza que deseja excluir esta transação?');">[Excluir]</button>
                         </form>
+					
 					</li>
 				{% else %}
 					<li>Nenhuma transação encontrada no banco de dados.</li>
