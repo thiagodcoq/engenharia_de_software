@@ -1,6 +1,6 @@
 from datetime import date
 from typing import List, Optional
-from src.core.entities import Categoria, CategoriaSaldoDTO, Transacao
+from src.core.entities import Categoria, Transacao
 from src.core.repositories import CategoriaRepositoryInterface, TransacaoRepositoryInterface
 
 class CriarTransacaoUseCase:
@@ -67,6 +67,7 @@ class ListarCategoriasUseCase:
     def executar(self, usuario_id: int) -> List[Categoria]:
         return self.categoria_repo.buscar_por_usuario(usuario_id)
     
+
 class CriarCategoriaUseCase:
     def __init__(self, categoria_repo: CategoriaRepositoryInterface):
         self.categoria_repo = categoria_repo
@@ -85,30 +86,3 @@ class CriarCategoriaUseCase:
             teto=teto
         )
         return self.categoria_repo.salvar(nova_categoria)
-
-class ObterSaldoCategoriasUseCase:
-    def __init__(self, categoria_repo: CategoriaRepositoryInterface, transacao_repo: TransacaoRepositoryInterface):
-        self.categoria_repo = categoria_repo
-        self.transacao_repo = transacao_repo
-
-    def executar(self, usuario_id: int) -> List[CategoriaSaldoDTO]:
-        categorias = self.categoria_repo.buscar_por_usuario(usuario_id)
-        transacoes = self.transacao_repo.buscar_todas_por_usuario(usuario_id)
-        
-        gastos_por_categoria = {}
-        for tx in transacoes:
-            if tx.tipo == "SAIDA" and tx.categoria_id is not None:
-                gastos_por_categoria[tx.categoria_id] = gastos_por_categoria.get(tx.categoria_id, 0.0) + tx.valor
-        
-        resultado = []
-        for cat in categorias:
-            gastos = gastos_por_categoria.get(cat.id, 0.0)
-            disponivel = (cat.teto - gastos) if cat.teto is not None else None
-            resultado.append(CategoriaSaldoDTO(
-                id=cat.id,
-                nome=cat.nome,
-                teto=cat.teto,
-                gastos=gastos,
-                disponivel=disponivel
-            ))
-        return resultado

@@ -15,10 +15,6 @@ class TransacaoRepositoryInterface(ABC):
     @abstractmethod
     def buscar_por_usuario(self, usuario_id: int, limite: int = 20) -> List[Transacao]:
         pass
-
-    @abstractmethod
-    def buscar_todas_por_usuario(self, usuario_id: int) -> List[Transacao]:
-        pass
     
     @abstractmethod
     def buscar_por_id(self, transacao_id: int, usuario_id: int) -> Optional[Transacao]:

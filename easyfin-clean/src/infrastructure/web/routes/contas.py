@@ -1,5 +1,6 @@
-from datetime import date
-from src.application.finance_use_cases import ListarCategoriasUseCase, ObterSaldoCategoriasUseCase
+from datetime import date, timedelta
+from itertools import groupby
+from src.application.finance_use_cases import ListarCategoriasUseCase
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from src.infrastructure.database import db
 from src.infrastructure.database.models import DBUsuario
@@ -32,25 +33,111 @@ def _criar_categorias_padrao(usuario_id):
 
 @contas_bp.route('/')
 def home():
-    data_hoje = date.today().strftime('%Y-%m-%d')
-    transacoes = []
-    categorias_saldo = []
-    
+    # A raiz é apenas um "porteiro": nunca renderiza tela própria.
+    # Logado -> menu principal (dashboard); deslogado -> login.
     if current_user.is_authenticated:
-        repo_tx = SQLAlchemyTransacaoRepository()
-        transacoes = repo_tx.buscar_por_usuario(current_user.id)
-        
-        repo_cat = SQLAlchemyCategoriaRepository()
-        obter_saldo_uc = ObterSaldoCategoriasUseCase(repo_cat, repo_tx)
-        categorias_saldo = obter_saldo_uc.executar(current_user.id)
-        
-    return render_template(
-        'home.html', 
-        user=current_user, 
-        data_hoje=data_hoje, 
-        transacoes=transacoes,
-        categorias=categorias_saldo
+        return redirect(url_for('contas.dashboard'))
+    return redirect(url_for('contas.login'))
+
+
+def _coletar_financas(usuario_id):
+    """
+    Monta os dados financeiros usado pelo dashbard e extrato
+    """
+
+    repo_tx = SQLAlchemyTransacaoRepository()
+    transacoes = repo_tx.buscar_por_usuario(usuario_id)
+
+    repo_cat=SQLAlchemyCategoriaRepository()
+    categorias = ListarCategoriasUseCase(repo_cat).executar(usuario_id)
+    categorias_map = {cat.id: cat.nome for cat in categorias}
+
+    total_entradas = sum(t.valor for t in transacoes if t.tipo == 'ENTRADA')
+    total_saidas = sum(t.valor for t in transacoes if t.tipo == 'SAIDA')
+    saldo_total = total_entradas - total_saidas
+
+    #Agrupa por dia - transação já vem ordenada (data desc)
+    hoje = date.today()
+    ontem = hoje - timedelta(days=1)
+    grupos = []
+
+    for dia, items, in groupby (transacoes, key=lambda t: t.data):
+        if dia == hoje:
+            rotulo = 'Hoje'
+        elif dia == ontem:
+            rotulo = "Ontem"
+        else:
+            rotulo = dia.strftime('%d/%m/%Y')
+        grupos.append({'rotulo': rotulo, 'transacoes': list(items)})
+
+    # Dict empacotado em dados e desempacotado em **dados
+    return dict(
+        categorias=categorias,
+        categorias_map=categorias_map,
+        grupos=grupos,
+        saldo_total=saldo_total,
+        total_entradas=total_entradas,
+        total_saidas=total_saidas,
     )
+
+@contas_bp.route('/dashboard/')
+@login_required
+def dashboard():
+    dados = _coletar_financas(current_user.id)
+    return render_template(
+        'home.html',
+        user=current_user,
+        data_hoje=date.today().strftime('%Y-%m-%d'),
+        **dados
+    )
+
+@contas_bp.route('/extrato/')
+@login_required
+def extrato():
+    dados= _coletar_financas(current_user.id)
+    return render_template('extrato.html', user=current_user, **dados)
+
+@contas_bp.route('/orcamento/')
+@login_required
+def orcamento():
+    repo_tx = SQLAlchemyTransacaoRepository()
+
+    # Intervalo do mês corrente: [dia 1, dia 1 do próximo mês)
+    hoje = date.today()
+    inicio = hoje.replace(day=1)
+    if hoje.month == 12:
+        proximo_mes = date(hoje.year + 1, 1, 1)
+    else:
+        proximo_mes = date(hoje.year, hoje.month + 1, 1)
+
+    transacoes_mes = repo_tx.buscar_por_periodo(current_user.id, inicio, proximo_mes)
+
+    repo_cat = SQLAlchemyCategoriaRepository()
+    categorias = ListarCategoriasUseCase(repo_cat).executar(current_user.id)
+
+    # Total planejado = soma dos tetos (limites mensais)
+    total_planejado = sum(c.teto for c in categorias if c.teto)
+
+    # Gasto do MÊS por categoria (só saídas)
+    gastos_por_categoria = {}
+    for t in transacoes_mes:
+        if t.tipo == 'SAIDA' and t.categoria_id is not None:
+            gastos_por_categoria[t.categoria_id] = gastos_por_categoria.get(t.categoria_id, 0) + t.valor
+
+    return render_template(
+        'orcamento.html',
+        user=current_user,
+        categorias=categorias,
+        total_planejado=total_planejado,
+        gastos_por_categoria=gastos_por_categoria,
+    )
+
+
+@contas_bp.route('/perfil/')
+@login_required
+def perfil():
+    return render_template('perfil.html', user=current_user)
+
 
 @contas_bp.route('/login/', methods=['GET', 'POST'])
 def login():
