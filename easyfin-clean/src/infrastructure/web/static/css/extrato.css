@@ -1,0 +1,196 @@
+/* ============================================================
+   EasyFin — Extrato (2ª aba do app)
+   Depende de global.css (tokens) e dashboard.css (componentes
+   reaproveitados: .app, .tx-group, .tx-item, .fab, .bottom-nav).
+   Aqui ficam SOMENTE os elementos específicos do Extrato:
+   header simples, cards de resumo, chips de mês/filtro e o
+   botão de lápis (editar) por transação.
+   ============================================================ */
+
+/* ---------- Header simples (hambúrguer + título centralizado) ---------- */
+.extrato-header {
+	display: flex;
+	align-items: center;
+	gap: 0.875rem;
+	margin-bottom: 1.5rem;
+}
+
+.extrato-header__menu {
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: var(--radius-full);
+	border: none;
+	background: var(--surface-container-high);
+	color: var(--on-background);
+	display: grid;
+	place-items: center;
+	cursor: pointer;
+	flex-shrink: 0;
+	text-decoration: none;
+}
+
+.extrato-header__menu svg {
+	width: 1.25rem;
+	height: 1.25rem;
+}
+
+.extrato-header__title {
+	flex: 1;
+	text-align: center;
+	font-family: var(--font-display);
+	font-weight: 800;
+	font-size: 1.25rem;
+	letter-spacing: -0.02em;
+	color: var(--on-background);
+	margin: 0;
+	/* compensa a largura do botão de menu para manter o título centralizado */
+	margin-right: 2.5rem;
+}
+
+/* ---------- Cards de resumo (Entradas / Saídas) ---------- */
+.summary {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.75rem;
+	margin-bottom: 1.75rem;
+}
+
+.summary-card {
+	border-radius: var(--radius-xl);
+	padding: 1rem 1.125rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+}
+
+.summary-card--income {
+	background: var(--secondary-container);
+	color: var(--on-secondary-container);
+}
+
+.summary-card--expense {
+	background: var(--tertiary-container);
+	color: var(--on-tertiary-container);
+}
+
+.summary-card__top {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.summary-card__icon {
+	width: 1.75rem;
+	height: 1.75rem;
+	border-radius: var(--radius-full);
+	display: grid;
+	place-items: center;
+	background: rgba(255, 255, 255, 0.35);
+	flex-shrink: 0;
+}
+
+.summary-card__icon svg {
+	width: 1rem;
+	height: 1rem;
+}
+
+.summary-card__label {
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+
+.summary-card__value {
+	font-family: var(--font-display);
+	font-weight: 800;
+	font-size: 1.375rem;
+	letter-spacing: -0.02em;
+}
+
+/* ---------- Linhas de chips (mês + filtro de categoria) ---------- */
+.chips {
+	display: flex;
+	gap: 0.5rem;
+	overflow-x: auto;
+	padding-bottom: 0.25rem;
+	margin-bottom: 1rem;
+	/* esconde a barra de rolagem mantendo o scroll horizontal */
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+.chips::-webkit-scrollbar {
+	display: none;
+}
+
+.chip {
+	flex-shrink: 0;
+	border: none;
+	cursor: pointer;
+	font-family: var(--font-body);
+	font-size: 0.8125rem;
+	font-weight: 600;
+	border-radius: var(--radius-full);
+	padding: 0.5rem 1rem;
+	background: var(--surface-container-high);
+	color: var(--on-surface-variant);
+	white-space: nowrap;
+	transition: transform 0.08s ease, filter 0.18s ease;
+	text-decoration: none;
+}
+
+.chip:active {
+	transform: scale(0.96);
+}
+
+.chip--active {
+	background: var(--gradient-primary);
+	color: var(--on-primary);
+	box-shadow: var(--shadow-ambient);
+}
+
+/* última linha de chips (filtro) com respiro maior antes da lista */
+.chips--filter {
+	margin-bottom: 1.5rem;
+}
+
+/* ---------- Botão de lápis (editar) dentro do .tx-item ---------- */
+/* Junto ao valor, alinhado à direita. Não altera .tx-item original. */
+.tx-item__edit {
+	flex-shrink: 0;
+	width: 2rem;
+	height: 2rem;
+	border-radius: var(--radius-full);
+	border: none;
+	background: var(--surface-container-high);
+	color: var(--on-surface-variant);
+	display: grid;
+	place-items: center;
+	cursor: pointer;
+	text-decoration: none;
+	transition: transform 0.08s ease, filter 0.18s ease;
+}
+
+.tx-item__edit:hover {
+	filter: brightness(0.97);
+	text-decoration: none;
+}
+
+.tx-item__edit:active {
+	transform: scale(0.94);
+}
+
+.tx-item__edit svg {
+	width: 1rem;
+	height: 1rem;
+}
+
+/* O valor não deve mais empurrar tudo via margin-left:auto quando há
+   lápis ao lado; agrupamos valor + lápis num bloco à direita. */
+.tx-item__right {
+	margin-left: auto;
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+}

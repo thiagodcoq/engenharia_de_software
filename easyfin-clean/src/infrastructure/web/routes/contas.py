@@ -1,5 +1,5 @@
-from datetime import date
-from src.application.finance_use_cases import ListarCategoriasUseCase
+from datetime import date, timedelta
+from itertools import groupby
 from src.application.finance_use_cases import ListarCategoriasUseCase
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from src.infrastructure.database import db
@@ -19,27 +19,62 @@ def home():
     return redirect(url_for('contas.login'))
 
 
+def _coletar_financas(usuario_id):
+    """
+    Monta os dados financeiros usado pelo dashbard e extrato
+    """
+
+    repo_tx = SQLAlchemyTransacaoRepository()
+    transacoes = repo_tx.buscar_por_usuario(usuario_id)
+
+    repo_cat=SQLAlchemyCategoriaRepository()
+    categorias = ListarCategoriasUseCase(repo_cat).executar(usuario_id)
+    categorias_map = {cat.id: cat.nome for cat in categorias}
+
+    total_entradas = sum(t.valor for t in transacoes if t.tipo == 'ENTRADA')
+    total_saidas = sum(t.valor for t in transacoes if t.tipo == 'SAIDA')
+    saldo_total = total_entradas - total_saidas
+
+    #Agrupa por dia - transação já vem ordenada (data desc)
+    hoje = date.today()
+    ontem = hoje - timedelta(days=1)
+    grupos = []
+
+    for dia, items, in groupby (transacoes, key=lambda t: t.data):
+        if dia == hoje:
+            rotulo = 'Hoje'
+        elif dia == ontem:
+            rotulo = "Ontem"
+        else:
+            rotulo = dia.strftime('%d/%m/%Y')
+        grupos.append({'rotulo': rotulo, 'transacoes': list(items)})
+
+    # Dict empacotado em dados e desempacotado em **dados
+    return dict(
+        categorias=categorias,
+        categorias_map=categorias_map,
+        grupos=grupos,
+        saldo_total=saldo_total,
+        total_entradas=total_entradas,
+        total_saidas=total_saidas,
+    )
+
 @contas_bp.route('/dashboard/')
 @login_required
 def dashboard():
-    data_hoje = date.today().strftime('%Y-%m-%d')
-
-    # Busca transações
-    repo_tx = SQLAlchemyTransacaoRepository()
-    transacoes = repo_tx.buscar_por_usuario(current_user.id)
-
-    # Busca categorias através do Use Case
-    repo_cat = SQLAlchemyCategoriaRepository()
-    listar_categorias_uc = ListarCategoriasUseCase(repo_cat)
-    categorias = listar_categorias_uc.executar(current_user.id)
-
+    dados = _coletar_financas(current_user.id)
     return render_template(
         'home.html',
         user=current_user,
-        data_hoje=data_hoje,
-        transacoes=transacoes,
-        categorias=categorias
+        data_hoje=date.today().strftime('%Y-%m-%d'),
+        **dados
     )
+
+@contas_bp.route('/extrato/')
+@login_required
+def extrato():
+    dados= _coletar_financas(current_user.id)
+    return render_template('extrato.html', user=current_user, **dados)
 
 @contas_bp.route('/login/', methods=['GET', 'POST'])
 def login():

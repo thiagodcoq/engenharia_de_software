@@ -1,0 +1,511 @@
+/* ============================================================
+   EasyFin — Dashboard (Início / Extrato)
+   Depende de global.css (tokens e componentes).
+   ============================================================ */
+
+:root {
+	--income-text: #00731e;   /* on_secondary_container */
+	--expense-text: #ba1a1a;  /* error */
+	--app-width: 28rem;        /* largura "mobile" do app */
+	--nav-height: 4.75rem;
+}
+
+.app {
+	max-width: var(--app-width);
+	margin: 0 auto;
+	min-height: 100vh;
+	background: var(--surface);
+	/* espaço pra navbar fixa + respiro */
+	padding: 1.5rem 1.25rem calc(var(--nav-height) + 2rem);
+	position: relative;
+}
+
+/* ---------- Topbar ---------- */
+.topbar {
+	display: flex;
+	align-items: center;
+	gap: 0.875rem;
+	margin-bottom: 1.5rem;
+}
+
+.topbar__avatar {
+	width: 2.75rem;
+	height: 2.75rem;
+	border-radius: var(--radius-full);
+	background: var(--gradient-primary);
+	color: var(--on-primary);
+	display: grid;
+	place-items: center;
+	font-family: var(--font-display);
+	font-weight: 800;
+	font-size: 1.0625rem;
+	flex-shrink: 0;
+}
+
+.topbar__greeting {
+	display: flex;
+	flex-direction: column;
+	line-height: 1.2;
+}
+
+.topbar__hello {
+	font-size: 0.8125rem;
+	color: var(--on-surface-variant);
+}
+
+.topbar__name {
+	font-family: var(--font-display);
+	font-weight: 800;
+	font-size: 1.125rem;
+	color: var(--on-background);
+	letter-spacing: -0.02em;
+}
+
+.topbar__action {
+	margin-left: auto;
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: var(--radius-full);
+	border: none;
+	background: var(--surface-container-high);
+	color: var(--on-background);
+	display: grid;
+	place-items: center;
+	cursor: pointer;
+}
+
+.topbar__action svg {
+	width: 1.25rem;
+	height: 1.25rem;
+}
+
+/* ---------- Card de saldo ---------- */
+.balance {
+	background: var(--gradient-primary);
+	color: var(--on-primary);
+	border-radius: var(--radius-xl);
+	padding: 1.5rem;
+	box-shadow: var(--shadow-ambient);
+	margin-bottom: 2rem;
+}
+
+.balance__label {
+	font-size: 0.8125rem;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	opacity: 0.8;
+}
+
+.balance__value {
+	font-family: var(--font-display);
+	font-weight: 800;
+	font-size: 2.5rem;
+	letter-spacing: -0.03em;
+	margin: 0.25rem 0 1.25rem;
+}
+
+.balance__pills {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.75rem;
+}
+
+.pill {
+	background: rgba(255, 255, 255, 0.12);
+	border-radius: var(--radius-lg);
+	padding: 0.75rem 0.875rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+}
+
+.pill__label {
+	font-size: 0.6875rem;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	opacity: 0.85;
+}
+
+.pill__value {
+	font-weight: 700;
+	font-size: 1rem;
+}
+
+/* ---------- Grupos de transações ---------- */
+.tx-group {
+	margin-bottom: 1.5rem;
+}
+
+.tx-group__label {
+	font-family: var(--font-body);
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--on-surface-variant);
+	margin: 0 0 0.75rem 0.25rem;
+}
+
+.tx-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.tx-item {
+	display: flex;
+	align-items: center;
+	gap: 0.875rem;
+	background: var(--surface-container-lowest);
+	border-radius: var(--radius-lg);
+	padding: 0.875rem 1rem;
+}
+
+.tx-item__icon {
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: var(--radius-full);
+	display: grid;
+	place-items: center;
+	flex-shrink: 0;
+}
+
+.tx-item__icon svg {
+	width: 1.125rem;
+	height: 1.125rem;
+}
+
+.tx-item__icon--income {
+	background: var(--secondary-container);
+	color: var(--income-text);
+}
+
+.tx-item__icon--expense {
+	background: var(--tertiary-container);
+	color: #ffffff;
+}
+
+.tx-item__body {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+	min-width: 0;
+}
+
+.tx-item__title {
+	font-weight: 600;
+	font-size: 0.9375rem;
+	color: var(--on-background);
+}
+
+.tx-item__sub {
+	font-size: 0.75rem;
+	color: var(--on-surface-variant);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.tx-item__amount {
+	margin-left: auto;
+	font-weight: 700;
+	font-size: 0.9375rem;
+	white-space: nowrap;
+}
+
+.tx-item__amount--income {
+	color: var(--income-text);
+}
+
+.tx-item__amount--expense {
+	color: var(--expense-text);
+}
+
+/* ---------- Estado vazio ---------- */
+.empty {
+	text-align: center;
+	color: var(--on-surface-variant);
+	padding: 3rem 1rem;
+}
+
+.empty__title {
+	font-family: var(--font-display);
+	font-weight: 700;
+	font-size: 1.125rem;
+	color: var(--on-background);
+	margin: 0 0 0.5rem;
+}
+
+/* ---------- FAB ---------- */
+.fab {
+	position: fixed;
+	right: max(1.5rem, calc(50% - var(--app-width) / 2 + 1.5rem));
+	bottom: calc(var(--nav-height) + 1rem);
+	width: 3.5rem;
+	height: 3.5rem;
+	border-radius: var(--radius-full);
+	border: none;
+	background: var(--gradient-primary);
+	color: var(--on-primary);
+	display: grid;
+	place-items: center;
+	cursor: pointer;
+	box-shadow: var(--shadow-ambient);
+	transition: transform 0.08s ease;
+	z-index: 20;
+}
+
+.fab:active {
+	transform: scale(0.94);
+}
+
+.fab svg {
+	width: 1.5rem;
+	height: 1.5rem;
+}
+
+/* ---------- Bottom nav ---------- */
+.bottom-nav {
+	position: fixed;
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 100%;
+	max-width: var(--app-width);
+	height: var(--nav-height);
+	background: var(--surface-container-lowest);
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	align-items: center;
+	padding-bottom: env(safe-area-inset-bottom);
+	box-shadow: 0 -8px 24px -12px rgba(72, 0, 178, 0.12);
+	z-index: 10;
+}
+
+.nav-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.25rem;
+	font-size: 0.6875rem;
+	font-weight: 600;
+	color: var(--on-surface-variant);
+	text-decoration: none;
+	background: none;
+	border: none;
+	cursor: pointer;
+}
+
+.nav-item svg {
+	width: 1.375rem;
+	height: 1.375rem;
+}
+
+.nav-item--active {
+	color: var(--primary-container);
+}
+
+.nav-item:hover {
+	text-decoration: none;
+}
+
+/* ---------- Modal Nova Transação ---------- */
+.modal {
+	position: fixed;
+	inset: 0;
+	z-index: 50;
+	display: none;
+}
+
+.modal.is-open {
+	display: block;
+}
+
+.modal__overlay {
+	position: absolute;
+	inset: 0;
+	background: rgba(25, 27, 34, 0.45);
+	backdrop-filter: blur(2px);
+}
+
+.modal__sheet {
+	position: absolute;
+	left: 50%;
+	bottom: 0;
+	transform: translateX(-50%);
+	width: 100%;
+	max-width: var(--app-width);
+	background: var(--surface-container-lowest);
+	border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+	padding: 1.5rem 1.25rem 2rem;
+	box-shadow: 0 -24px 48px -12px rgba(72, 0, 178, 0.25);
+	animation: sheet-up 0.22s ease;
+}
+
+@keyframes sheet-up {
+	from { transform: translate(-50%, 100%); }
+	to   { transform: translate(-50%, 0); }
+}
+
+.modal__grip {
+	width: 2.5rem;
+	height: 0.25rem;
+	border-radius: var(--radius-full);
+	background: var(--outline-variant);
+	margin: 0 auto 1rem;
+}
+
+.modal__title {
+	font-family: var(--font-display);
+	font-weight: 800;
+	font-size: 1.25rem;
+	text-align: center;
+	margin: 0 0 1.25rem;
+	color: var(--on-background);
+}
+
+/* Campo de valor em destaque */
+.amount-field {
+	text-align: center;
+	margin-bottom: 1.5rem;
+}
+
+.amount-field__label {
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--on-surface-variant);
+}
+
+.amount-field__input-row {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.5rem;
+	margin-top: 0.5rem;
+}
+
+.amount-field__currency {
+	font-family: var(--font-display);
+	font-weight: 700;
+	font-size: 1.5rem;
+	color: var(--on-surface-variant);
+}
+
+.amount-field__input {
+	border: none;
+	outline: none;
+	background: transparent;
+	font-family: var(--font-display);
+	font-weight: 800;
+	font-size: 2.5rem;
+	color: var(--primary-container);
+	width: 7ch;
+	text-align: center;
+	letter-spacing: -0.03em;
+}
+
+/* Segmented Despesa / Receita */
+.segmented {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.25rem;
+	background: var(--surface-container-high);
+	border-radius: var(--radius-full);
+	padding: 0.25rem;
+	margin-bottom: 1rem;
+}
+
+.segmented input {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.segmented__option {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.375rem;
+	padding: 0.625rem;
+	border-radius: var(--radius-full);
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: var(--on-surface-variant);
+	cursor: pointer;
+	transition: background 0.15s ease, color 0.15s ease;
+}
+
+.segmented input:checked + .segmented__option {
+	background: var(--surface-container-lowest);
+	color: var(--on-background);
+	box-shadow: 0 2px 8px -4px rgba(72, 0, 178, 0.25);
+}
+
+.segmented__option svg {
+	width: 1rem;
+	height: 1rem;
+}
+
+/* Linha de selects (categoria + data) */
+.modal__row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.75rem;
+	margin-bottom: 1rem;
+}
+
+.select-shell {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	background: var(--surface-container-high);
+	border-radius: var(--radius-lg);
+	padding: 0 0.875rem;
+}
+
+.select-shell svg {
+	width: 1.125rem;
+	height: 1.125rem;
+	color: var(--on-surface-variant);
+	flex-shrink: 0;
+}
+
+.select-shell select,
+.select-shell input {
+	flex: 1;
+	width: 100%;
+	border: none;
+	outline: none;
+	background: transparent;
+	font-family: var(--font-body);
+	font-size: 0.875rem;
+	color: var(--on-background);
+	padding: 0.75rem 0;
+	appearance: none;
+}
+
+.modal__note {
+	margin-bottom: 1.25rem;
+}
+
+/* Link discreto dentro do modal (ex.: "+ Nova categoria") */
+.link-button {
+	display: inline-block;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+	margin: 0 0 1.25rem 0.25rem;
+	font-family: var(--font-body);
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: var(--primary-container);
+}
+
+.link-button:hover {
+	text-decoration: underline;
+}
+
+.modal .btn--block {
+	width: 100%;
+}

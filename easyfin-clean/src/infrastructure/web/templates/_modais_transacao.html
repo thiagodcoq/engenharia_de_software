@@ -1,0 +1,128 @@
+<!-- ====================== Modal: Nova Transação ====================== -->
+<!-- Partial compartilhado por home.html (dashboard) e extrato.html.
+     Requer no contexto: `categorias`. Opcional: `data_hoje`. -->
+<div class="modal" id="modal-tx" aria-hidden="true">
+	<div class="modal__overlay" data-close-modal></div>
+	<div class="modal__sheet" role="dialog" aria-modal="true" aria-labelledby="modal-tx-title">
+		<div class="modal__grip"></div>
+		<h2 class="modal__title" id="modal-tx-title">Nova Transação</h2>
+
+		<form method="post" action="{{ url_for('financas.nova_transacao') }}">
+			<!-- Valor -->
+			<div class="amount-field">
+				<div class="amount-field__label">Quantia</div>
+				<div class="amount-field__input-row">
+					<span class="amount-field__currency">R$</span>
+					<input class="amount-field__input" type="number" name="valor" step="0.01" min="0" placeholder="0,00" required />
+				</div>
+			</div>
+
+			<!-- Tipo: Despesa (SAIDA) / Receita (ENTRADA) -->
+			<div class="segmented">
+				<input type="radio" id="tipo-saida" name="tipo" value="SAIDA" checked />
+				<label class="segmented__option" for="tipo-saida">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M12 5v14" /><path d="m19 12-7 7-7-7" />
+					</svg>
+					Despesa
+				</label>
+				<input type="radio" id="tipo-entrada" name="tipo" value="ENTRADA" />
+				<label class="segmented__option" for="tipo-entrada">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M12 19V5" /><path d="m5 12 7-7 7 7" />
+					</svg>
+					Receita
+				</label>
+			</div>
+
+			<!-- Categoria + Data -->
+			<div class="modal__row">
+				<div class="select-shell">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+						<rect x="3" y="3" width="7" height="7" rx="1.5" />
+						<rect x="14" y="3" width="7" height="7" rx="1.5" />
+						<rect x="3" y="14" width="7" height="7" rx="1.5" />
+						<rect x="14" y="14" width="7" height="7" rx="1.5" />
+					</svg>
+					<select name="categoria">
+						<option value="">Sem categoria</option>
+						{% for cat in categorias %}
+							<option value="{{ cat.id }}">{{ cat.nome }}</option>
+						{% endfor %}
+					</select>
+				</div>
+				<div class="select-shell">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+						<rect x="3" y="4" width="18" height="18" rx="2" />
+						<path d="M16 2v4" /><path d="M8 2v4" /><path d="M3 10h18" />
+					</svg>
+					<input type="date" name="data" value="{{ data_hoje | default('', true) }}" />
+				</div>
+			</div>
+
+			<button type="button" class="link-button" data-open-modal="modal-cat">
+				+ Nova categoria
+			</button>
+
+			<!-- Nota / descrição -->
+			<div class="field modal__note">
+				<div class="input-shell">
+					<input type="text" name="descricao" placeholder="Adicionar uma nota (opcional)" />
+				</div>
+			</div>
+
+			<button type="submit" class="btn btn--primary btn--block">Salvar Transação</button>
+		</form>
+	</div>
+</div>
+
+<!-- ====================== Modal: Nova Categoria ====================== -->
+<div class="modal" id="modal-cat" aria-hidden="true">
+	<div class="modal__overlay" data-close-modal></div>
+	<div class="modal__sheet" role="dialog" aria-modal="true" aria-labelledby="modal-cat-title">
+		<div class="modal__grip"></div>
+		<h2 class="modal__title" id="modal-cat-title">Nova Categoria</h2>
+
+		<form method="post" action="{{ url_for('financas.nova_categoria') }}">
+			<div class="field modal__note">
+				<label class="field__label" for="cat-nome">Nome da categoria</label>
+				<div class="input-shell">
+					<input type="text" id="cat-nome" name="nome" placeholder="Ex.: Alimentação" required />
+				</div>
+			</div>
+
+			<div class="field modal__note">
+				<label class="field__label" for="cat-teto">Teto de gastos (opcional)</label>
+				<div class="input-shell">
+					<span class="input-shell__icon" aria-hidden="true">R$</span>
+					<input type="number" id="cat-teto" name="teto" step="0.01" min="0" placeholder="0,00" />
+				</div>
+			</div>
+
+			<button type="submit" class="btn btn--primary btn--block">Salvar Categoria</button>
+		</form>
+	</div>
+</div>
+
+<script>
+	// Abrir / fechar modais
+	document.querySelectorAll('[data-open-modal]').forEach(function (btn) {
+		btn.addEventListener('click', function () {
+			var modal = document.getElementById(btn.dataset.openModal);
+			if (modal) modal.classList.add('is-open');
+		});
+	});
+	document.querySelectorAll('[data-close-modal]').forEach(function (el) {
+		el.addEventListener('click', function () {
+			var modal = el.closest('.modal');
+			if (modal) modal.classList.remove('is-open');
+		});
+	});
+	document.addEventListener('keydown', function (e) {
+		if (e.key === 'Escape') {
+			document.querySelectorAll('.modal.is-open').forEach(function (m) {
+				m.classList.remove('is-open');
+			});
+		}
+	});
+</script>
