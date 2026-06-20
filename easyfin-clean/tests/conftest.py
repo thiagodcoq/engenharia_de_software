@@ -1,9 +1,13 @@
 """Configuração e fixtures para testes do projeto EasyFin."""
 
 import pytest
+import tempfile
+import os
 from datetime import date
 from src.core.entities import Usuario, Categoria, Transacao
 from src.core.repositories import TransacaoRepositoryInterface, CategoriaRepositoryInterface
+from src.infrastructure.web.app import create_app
+from src.infrastructure.database import db
 
 
 class MockTransacaoRepository(TransacaoRepositoryInterface):
@@ -99,3 +103,62 @@ def transacao_fixture(usuario_fixture, categoria_fixture):
         tipo="SAIDA",
         data=date.today()
     )
+
+
+# ============================================================================
+# FIXTURES DE BANCO DE DADOS REAL (para testes de integração)
+# ============================================================================
+
+@pytest.fixture
+def app_test():
+    """Fixture: app Flask com banco de dados de teste (em memória)."""
+    # Usa banco de dados em memória para testes rápidos
+    db_fd, db_path = tempfile.mkstemp()
+    
+    app = create_app()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['TESTING'] = True
+    
+    with app.app_context():
+        db.create_all()
+        yield app
+        db.session.remove()
+        db.drop_all()
+    
+    os.close(db_fd)
+    os.unlink(db_path)
+
+
+@pytest.fixture
+def db_session(app_test):
+    """Fixture: sessão do banco de dados para testes."""
+    with app_test.app_context():
+        yield db
+
+
+@pytest.fixture
+def usuario_no_db(db_session):
+    """Fixture: usuário salvo no banco de dados real."""
+    from src.infrastructure.database.models import DBUsuario
+    
+    usuario = DBUsuario(nome="João Silva", email="joao@test.com")
+    usuario.set_password("senha123")
+    db_session.session.add(usuario)
+    db_session.session.commit()
+    return usuario
+
+
+@pytest.fixture
+def categoria_no_db(db_session, usuario_no_db):
+    """Fixture: categoria salva no banco de dados real."""
+    from src.infrastructure.database.models import DBCategoria
+    
+    categoria = DBCategoria(
+        usuario_id=usuario_no_db.id,
+        nome="Alimentação",
+        teto=500.0
+    )
+    db_session.session.add(categoria)
+    db_session.session.commit()
+    return categoria
+
