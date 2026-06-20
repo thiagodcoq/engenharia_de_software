@@ -2,19 +2,67 @@
 <html lang="pt-br">
 	<head>
 		<meta charset="utf-8" />
-		<title>EasyFin - Autenticação</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>EasyFin — Autenticação</title>
+
+		<script>
+			(function () {
+				if (localStorage.getItem('theme') === 'dark') {
+					document.documentElement.setAttribute('data-theme', 'dark');
+				}
+			})();
+		</script>
+
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}" />
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}" />
 	</head>
 	<body>
-		{% with messages = get_flashed_messages() %}
-			{% if messages %}
-				<ul class="flashes">
-				{% for msg in messages %}
-					<li>{{ msg }}</li>
-				{% endfor %}
-				</ul>
-			{% endif %}
-		{% endwith %}
+		<main class="auth">
+			<section class="auth__card">
+				<a class="brand auth__brand" href="{{ url_for('contas.home') }}">
+					<span class="brand__mark" aria-hidden="true">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M3 9.5 12 4l9 5.5" />
+							<path d="M5 10v8" />
+							<path d="M19 10v8" />
+							<path d="M9 10v8" />
+							<path d="M15 10v8" />
+							<path d="M3 20h18" />
+						</svg>
+					</span>
+					EasyFin
+				</a>
 
-		{% block content %}{% endblock %}
+				{% with messages = get_flashed_messages() %}
+					{% if messages %}
+						<ul class="flashes">
+							{% for msg in messages %}
+								<li>{{ msg }}</li>
+							{% endfor %}
+						</ul>
+					{% endif %}
+				{% endwith %}
+
+				{% block content %}{% endblock %}
+			</section>
+		</main>
+
+		<script>
+			// Mostrar/ocultar senha
+			document.querySelectorAll('[data-toggle-password]').forEach(function (btn) {
+				btn.addEventListener('click', function () {
+					var input = document.getElementById(btn.dataset.togglePassword);
+					if (!input) return;
+					input.type = input.type === 'password' ? 'text' : 'password';
+				});
+			});
+		</script>
 	</body>
 </html>

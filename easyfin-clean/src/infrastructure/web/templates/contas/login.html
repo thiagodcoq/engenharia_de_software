@@ -1,12 +1,49 @@
 {% extends 'contas/base_auth.html' %}
 
 {% block content %}
-	<h2>Login</h2>
-	<form method="post" action="{{ url_for('contas.login') }}">
-		<label>Email: <input type="email" name="email" required></label><br>
-		<label>Senha: <input type="password" name="senha" required></label><br>
-		<button type="submit">Entrar</button>
-	</form>
-	<p>Não tem conta? <a href="{{ url_for('contas.cadastro') }}">Cadastre-se</a></p>
-{% endblock %}
+	<h1 class="auth__title">Sign In</h1>
+	<p class="auth__subtitle">Acesse sua responsabilidade financeira.</p>
 
+	<form class="auth__form" method="post" action="{{ url_for('contas.login') }}">
+		<div class="field">
+			<label class="field__label" for="email">Endereço de Email</label>
+			<div class="input-shell">
+				<span class="input-shell__icon" aria-hidden="true">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+						<rect x="3" y="5" width="18" height="14" rx="2" />
+						<path d="m3 7 9 6 9-6" />
+					</svg>
+				</span>
+				<input type="email" id="email" name="email" placeholder="curator@easyfin.com" required />
+			</div>
+		</div>
+
+		<div class="field">
+			<div class="field__label-row">
+				<label class="field__label" for="senha">Senha</label>
+				<a class="field__action" href="#">Esqueceu a Senha?</a>
+			</div>
+			<div class="input-shell">
+				<span class="input-shell__icon" aria-hidden="true">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+						<rect x="4" y="11" width="16" height="9" rx="2" />
+						<path d="M8 11V7a4 4 0 0 1 8 0v4" />
+					</svg>
+				</span>
+				<input type="password" id="senha" name="senha" placeholder="••••••••" required />
+				<button type="button" class="input-shell__toggle" data-toggle-password="senha" aria-label="Mostrar senha">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+						<circle cx="12" cy="12" r="3" />
+					</svg>
+				</button>
+			</div>
+		</div>
+
+		<button type="submit" class="btn btn--primary btn--block auth__submit">Sign In</button>
+	</form>
+
+	<p class="auth__footer">
+		Não possui conta? <a href="{{ url_for('contas.cadastro') }}">Crie sua conta</a>
+	</p>
+{% endblock %}

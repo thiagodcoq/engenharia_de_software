@@ -58,6 +58,25 @@ class SQLAlchemyTransacaoRepository(TransacaoRepositoryInterface):
             return True
         return False
     
+    def buscar_por_periodo(self, usuario_id, inicio, fim):
+        db_txs = DBTransacao.query.filter(
+            DBTransacao.usuario_id == usuario_id,
+            DBTransacao.data >= inicio,
+            DBTransacao.data < fim,
+        ).order_by(DBTransacao.data.desc()).all()
+
+        return [
+            DomainTransacao(
+            id=tx.id,
+            usuario_id=tx.usuario_id,
+            categoria_id=tx.categoria_id,
+            descricao=tx.descricao,
+            valor=float(tx.valor),
+            tipo=tx.tipo,
+            data=tx.data,
+        ) for tx in db_txs
+        ]
+    
 class SQLAlchemyCategoriaRepository(CategoriaRepositoryInterface):
     def buscar_por_usuario(self, usuario_id: int) -> List[DomainCategoria]:
         db_categorias = DBCategoria.query.filter_by(usuario_id=usuario_id).order_by(DBCategoria.nome).all()
@@ -70,6 +89,17 @@ class SQLAlchemyCategoriaRepository(CategoriaRepositoryInterface):
                 teto=float(cat.teto) if cat.teto else None
             ) for cat in db_categorias
         ]
+    
+    def buscar_por_id(self, categoria_id, usuario_id):
+        cat = DBCategoria.query.filter_by(id=categoria_id, usuario_id=usuario_id).first()
+        if not cat:
+            return None
+        return DomainCategoria(
+            id=cat.id,
+            usuario_id=cat.usuario_id,
+            nome=cat.nome,
+            teto=float(cat.teto) if cat.teto else None,
+        )
     
     def salvar(self, categoria: DomainCategoria) -> DomainCategoria:
         if categoria.id:

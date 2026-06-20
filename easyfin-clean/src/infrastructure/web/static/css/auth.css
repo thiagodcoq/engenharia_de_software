@@ -1,0 +1,73 @@
+/* ============================================================
+   EasyFin — Telas de Autenticação (login / cadastro)
+   Depende de global.css (tokens e componentes).
+   ============================================================ */
+
+.auth {
+	min-height: 100vh;
+	display: grid;
+	place-items: center;
+	padding: 2rem 1.25rem;
+	/* leve profundidade tonal de fundo */
+	background:
+		radial-gradient(1200px 600px at 50% -10%, var(--surface-container-low), transparent 70%),
+		var(--surface);
+}
+
+.auth__card {
+	width: 100%;
+	max-width: 26rem;
+	background: var(--surface-container-lowest);
+	border-radius: var(--radius-xl);
+	padding: 2.5rem 2rem;
+	box-shadow: var(--shadow-ambient);
+}
+
+.auth__brand {
+	margin-bottom: 2rem;
+}
+
+.auth__title {
+	font-family: var(--font-display);
+	font-weight: 800;
+	letter-spacing: -0.03em;
+	line-height: 1.1;
+	font-size: 2rem;
+	margin: 0 0 0.5rem;
+	color: var(--on-background);
+}
+
+.auth__subtitle {
+	margin: 0 0 2rem;
+	font-size: 0.9375rem;
+	color: var(--on-surface-variant);
+}
+
+.auth__form {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+}
+
+/* Linha "rótulo + ação" (ex.: Password ... Forgot Password?) */
+.field__label-row {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+.field__label-row .field__action {
+	font-size: 0.8125rem;
+}
+
+.auth__submit {
+	margin-top: 0.5rem;
+}
+
+.auth__footer {
+	margin: 1.75rem 0 0;
+	text-align: center;
+	font-size: 0.875rem;
+	color: var(--on-surface-variant);
+}
