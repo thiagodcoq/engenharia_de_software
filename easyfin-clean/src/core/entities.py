@@ -33,9 +33,3 @@ class CategoriaSaldoDTO:
     teto: Optional[float]
     gastos: float
     disponivel: Optional[float]
-
-@dataclass
-class SaldoGeralDTO:
-    saldo_total: float
-    total_entradas: float
-    total_saidas: float

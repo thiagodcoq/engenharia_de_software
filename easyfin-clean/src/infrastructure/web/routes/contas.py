@@ -1,4 +1,5 @@
 from datetime import date
+from src.application.finance_use_cases import ListarCategoriasUseCase, ObterSaldoCategoriasUseCase
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from src.infrastructure.database import db
 from src.infrastructure.database.models import DBUsuario
@@ -6,7 +7,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 
 
 from src.infrastructure.database.repositories import SQLAlchemyTransacaoRepository, SQLAlchemyCategoriaRepository
-from src.application.finance_use_cases import ObterSaldoCategoriasUseCase, CalcularSaldoTotalMesUseCase
+from src.core.entities import Categoria
 
 contas_bp = Blueprint('contas', __name__)
 
@@ -34,7 +35,6 @@ def home():
     data_hoje = date.today().strftime('%Y-%m-%d')
     transacoes = []
     categorias_saldo = []
-    saldo_geral = None
     
     if current_user.is_authenticated:
         repo_tx = SQLAlchemyTransacaoRepository()
@@ -44,16 +44,12 @@ def home():
         obter_saldo_uc = ObterSaldoCategoriasUseCase(repo_cat, repo_tx)
         categorias_saldo = obter_saldo_uc.executar(current_user.id)
         
-        calcular_saldo_uc = CalcularSaldoTotalMesUseCase(repo_tx)
-        saldo_geral = calcular_saldo_uc.executar(current_user.id)
-        
     return render_template(
         'home.html', 
         user=current_user, 
         data_hoje=data_hoje, 
         transacoes=transacoes,
-        categorias=categorias_saldo,
-        saldo_geral=saldo_geral
+        categorias=categorias_saldo
     )
 
 @contas_bp.route('/login/', methods=['GET', 'POST'])
