@@ -71,3 +71,23 @@ def nova_categoria():
         flash("Erro ao salvar categoria. Certifique-se de que o nome já não existe.")
         
     return redirect(url_for('contas.home'))
+
+@financas_bp.route('/categoria/<int:categoria_id>/limite/', methods=['POST'])
+@login_required
+def salvar_limite(categoria_id):
+    teto_raw = request.form.get('teto')
+    teto = float(teto_raw) if teto_raw and teto_raw.strip() else None
+
+    if teto is not None and teto < 0:
+        flash("O teto não pode ser negativo.")
+        return redirect(url_for('contas.orcamento'))
+    
+    categoria = categoria_repo.buscar_por_id(categoria_id, current_user.id)
+    if categoria is None:
+        flash('Categoria não encontrada.')
+        return redirect(url_for('contas.orcamento'))
+    
+    categoria.teto = teto
+    categoria_repo.salvar(categoria) #id já existe -> salvar atualiza
+    flash('Limite atualizado!')
+    return redirect(url_for('contas.orcamento'))

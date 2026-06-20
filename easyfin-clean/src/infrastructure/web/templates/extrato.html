@@ -1,0 +1,190 @@
+{% extends 'base_app.html' %}
+
+{# Formata número no padrão brasileiro: 12450.5 -> R$ 12.450,50 #}
+{% macro brl(v) -%}
+R$ {{ "{:,.2f}".format(v | float).replace(",", "X").replace(".", ",").replace("X", ".") }}
+{%- endmacro %}
+
+{% block title %}Extrato — EasyFin{% endblock %}
+
+{% block head %}
+	<!-- Reaproveita as classes do dashboard (.tx-group, .tx-item, .fab, .bottom-nav, etc) -->
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}" />
+	<!-- Estilos específicos do Extrato -->
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/extrato.css') }}" />
+{% endblock %}
+
+{% block body %}
+<div class="app">
+	<!-- Header simples: menu (hambúrguer) à esquerda + título centralizado -->
+	<header class="extrato-header">
+		<!-- TODO backend: endpoint para abrir o menu lateral (drawer). Sem rota ainda. -->
+		<a class="extrato-header__menu" href="#" title="Menu" aria-label="Abrir menu">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M4 6h16" />
+				<path d="M4 12h16" />
+				<path d="M4 18h16" />
+			</svg>
+		</a>
+		<h1 class="extrato-header__title">Extrato</h1>
+	</header>
+
+	<!-- Mensagens flash -->
+	{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			<ul class="flashes">
+				{% for msg in messages %}
+					<li>{{ msg }}</li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+	{% endwith %}
+
+	<!-- Cards de resumo: Entradas (verde) / Saídas (vermelho) -->
+	<section class="summary">
+		<div class="summary-card summary-card--income">
+			<div class="summary-card__top">
+				<span class="summary-card__icon" aria-hidden="true">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M12 19V5" />
+						<path d="m5 12 7-7 7 7" />
+					</svg>
+				</span>
+				<span class="summary-card__label">Entradas</span>
+			</div>
+			<span class="summary-card__value">{{ brl(total_entradas) }}</span>
+		</div>
+		<div class="summary-card summary-card--expense">
+			<div class="summary-card__top">
+				<span class="summary-card__icon" aria-hidden="true">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M12 5v14" />
+						<path d="m19 12-7 7-7-7" />
+					</svg>
+				</span>
+				<span class="summary-card__label">Saídas</span>
+			</div>
+			<span class="summary-card__value">{{ brl(total_saidas) }}</span>
+		</div>
+	</section>
+
+	<!-- Chips de MÊS (apenas visuais; filtro por mês é backend) -->
+	<!-- TODO backend: endpoint para filtrar o extrato por mês (ex.: GET /extrato/?mes=4). -->
+	<div class="chips chips--month" role="tablist" aria-label="Filtrar por mês">
+		<a class="chip" href="#" role="tab">Março</a>
+		<a class="chip chip--active" href="#" role="tab" aria-selected="true">Abril</a>
+		<a class="chip" href="#" role="tab">Maio</a>
+	</div>
+
+	<!-- Chips de FILTRO por categoria (scroll horizontal; visuais por enquanto) -->
+	<!-- TODO backend: endpoint para filtrar por categoria (ex.: GET /extrato/?categoria=<id>). -->
+	<div class="chips chips--filter" role="tablist" aria-label="Filtrar por categoria">
+		<a class="chip chip--active" href="#" role="tab" aria-selected="true">Todas</a>
+		{% for cat in categorias %}
+			<a class="chip" href="#" role="tab">{{ cat.nome }}</a>
+		{% else %}
+			<a class="chip" href="#" role="tab">Alimentação</a>
+			<a class="chip" href="#" role="tab">Lazer</a>
+			<a class="chip" href="#" role="tab">Saúde</a>
+			<a class="chip" href="#" role="tab">Transporte</a>
+		{% endfor %}
+	</div>
+
+	<!-- Lista de transações agrupadas por dia (com botão de lápis por item) -->
+	{% for grupo in grupos %}
+		<section class="tx-group">
+			<h2 class="tx-group__label">{{ grupo.rotulo }}</h2>
+			<div class="tx-list">
+				{% for tx in grupo.transacoes %}
+					{% set is_entrada = tx.tipo == 'ENTRADA' %}
+					<div class="tx-item">
+						<div class="tx-item__icon {{ 'tx-item__icon--income' if is_entrada else 'tx-item__icon--expense' }}" aria-hidden="true">
+							{% if is_entrada %}
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M12 19V5" />
+									<path d="m5 12 7-7 7 7" />
+								</svg>
+							{% else %}
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M12 5v14" />
+									<path d="m19 12-7 7-7-7" />
+								</svg>
+							{% endif %}
+						</div>
+						<div class="tx-item__body">
+							<span class="tx-item__title">
+								{{ categorias_map.get(tx.categoria_id, 'Sem categoria') }}
+							</span>
+							{% if tx.descricao %}
+								<span class="tx-item__sub">{{ tx.descricao }}</span>
+							{% endif %}
+						</div>
+						<div class="tx-item__right">
+							<span class="tx-item__amount {{ 'tx-item__amount--income' if is_entrada else 'tx-item__amount--expense' }}">
+								{{ '+' if is_entrada else '-' }} {{ brl(tx.valor) }}
+							</span>
+							<!-- TODO backend: deveria apontar para editar transação por id
+							     (ex.: financas.editar_transacao com tx_id=tx.id). Rota inexistente -> href="#". -->
+							<a class="tx-item__edit" href="#" title="Editar transação" aria-label="Editar transação">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M12 20h9" />
+									<path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+								</svg>
+							</a>
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+		</section>
+	{% else %}
+		<div class="empty">
+			<p class="empty__title">Nenhuma transação ainda</p>
+			<p>Toque no botão <strong>+</strong> para registrar a primeira.</p>
+		</div>
+	{% endfor %}
+
+	<!-- FAB: abre o modal de nova transação (mesmo do dashboard) -->
+	<button class="fab" type="button" data-open-modal="modal-tx" aria-label="Nova transação">
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+			<path d="M12 5v14" />
+			<path d="M5 12h14" />
+		</svg>
+	</button>
+
+	<!-- Bottom nav (Extrato ativo) -->
+	<nav class="bottom-nav">
+		<a class="nav-item" href="{{ url_for('contas.dashboard') }}">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+				<path d="m3 9.5 9-7 9 7" />
+				<path d="M9 22V12h6v10" />
+				<path d="M5 10v10h14V10" />
+			</svg>
+			Início
+		</a>
+		<a class="nav-item nav-item--active" href="{{ url_for('contas.extrato') }}">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M4 6h16" />
+				<path d="M4 12h16" />
+				<path d="M4 18h10" />
+			</svg>
+			Extrato
+		</a>
+		<a class="nav-item" href="{{ url_for('contas.orcamento') }}">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M3 3v18h18" />
+				<path d="m7 14 4-4 3 3 5-6" />
+			</svg>
+			Orçamento
+		</a>
+		<button class="nav-item" type="button" disabled>
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+				<circle cx="12" cy="8" r="4" />
+				<path d="M4 21a8 8 0 0 1 16 0" />
+			</svg>
+			Perfil
+		</button>
+	</nav>
+</div>
+
+{% include '_modais_transacao.html' %}
+{% endblock %}

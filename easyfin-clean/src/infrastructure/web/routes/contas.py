@@ -6,6 +6,7 @@ from src.infrastructure.database import db
 from src.infrastructure.database.models import DBUsuario
 from flask_login import login_user, logout_user, login_required, current_user
 
+
 from src.infrastructure.database.repositories import SQLAlchemyTransacaoRepository, SQLAlchemyCategoriaRepository
 
 contas_bp = Blueprint('contas', __name__)
@@ -75,6 +76,43 @@ def dashboard():
 def extrato():
     dados= _coletar_financas(current_user.id)
     return render_template('extrato.html', user=current_user, **dados)
+
+@contas_bp.route('/orcamento/')
+@login_required
+def orcamento():
+    repo_tx = SQLAlchemyTransacaoRepository()
+
+    # Intervalo do mês corrente: [dia 1, dia 1 do próximo mês)
+    hoje = date.today()
+    inicio = hoje.replace(day=1)
+    if hoje.month == 12:
+        proximo_mes = date(hoje.year + 1, 1, 1)
+    else:
+        proximo_mes = date(hoje.year, hoje.month + 1, 1)
+
+    transacoes_mes = repo_tx.buscar_por_periodo(current_user.id, inicio, proximo_mes)
+
+    repo_cat = SQLAlchemyCategoriaRepository()
+    categorias = ListarCategoriasUseCase(repo_cat).executar(current_user.id)
+
+    # Total planejado = soma dos tetos (limites mensais)
+    total_planejado = sum(c.teto for c in categorias if c.teto)
+
+    # Gasto do MÊS por categoria (só saídas)
+    gastos_por_categoria = {}
+    for t in transacoes_mes:
+        if t.tipo == 'SAIDA' and t.categoria_id is not None:
+            gastos_por_categoria[t.categoria_id] = gastos_por_categoria.get(t.categoria_id, 0) + t.valor
+
+    return render_template(
+        'orcamento.html',
+        user=current_user,
+        categorias=categorias,
+        total_planejado=total_planejado,
+        gastos_por_categoria=gastos_por_categoria,
+    )
+
+
 
 @contas_bp.route('/login/', methods=['GET', 'POST'])
 def login():

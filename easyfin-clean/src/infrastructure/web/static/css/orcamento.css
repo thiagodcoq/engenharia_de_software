@@ -1,0 +1,163 @@
+/* ============================================================
+   EasyFin — Orçamento / Meus Limites
+   Depende de global.css (tokens/.btn/.input-shell) e
+   dashboard.css (.app/.balance/.bottom-nav/.modal/.amount-field).
+   Este arquivo NÃO redefine nada desses — apenas adiciona o que
+   é específico da tela de orçamento.
+   ============================================================ */
+
+/* ---------- Lista de limites ---------- */
+.budget-group {
+	margin-bottom: 1.5rem;
+}
+
+.budget-group__label {
+	font-family: var(--font-body);
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--on-surface-variant);
+	margin: 0 0 0.75rem 0.25rem;
+}
+
+.budget-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+/* Cada categoria: card sem linhas, separação por whitespace/tonal */
+.budget-item {
+	background: var(--surface-container-lowest);
+	border-radius: var(--radius-lg);
+	padding: 1rem 1.125rem;
+}
+
+.budget-item__head {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.875rem;
+}
+
+.budget-item__info {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+	min-width: 0;
+}
+
+.budget-item__name {
+	font-weight: 600;
+	font-size: 0.9375rem;
+	color: var(--on-background);
+}
+
+.budget-item__meta {
+	font-size: 0.8125rem;
+	color: var(--on-surface-variant);
+}
+
+.budget-item__meta--muted {
+	font-style: italic;
+	opacity: 0.8;
+}
+
+/* Botão de lápis (editar limite) */
+.budget-item__edit {
+	margin-left: auto;
+	flex-shrink: 0;
+	width: 2.25rem;
+	height: 2.25rem;
+	border-radius: var(--radius-full);
+	border: none;
+	background: var(--surface-container-high);
+	color: var(--primary-container);
+	display: grid;
+	place-items: center;
+	cursor: pointer;
+	transition: transform 0.08s ease, filter 0.18s ease;
+}
+
+.budget-item__edit:active {
+	transform: scale(0.94);
+}
+
+.budget-item__edit:hover {
+	filter: brightness(0.97);
+}
+
+.budget-item__edit svg {
+	width: 1.0625rem;
+	height: 1.0625rem;
+}
+
+/* ---------- Barra de progresso ---------- */
+.progress {
+	margin-top: 0.875rem;
+	height: 0.5rem;
+	border-radius: var(--radius-full);
+	background: var(--surface-container-high);
+	overflow: hidden;
+}
+
+.progress__bar {
+	height: 100%;
+	border-radius: var(--radius-full);
+	background: var(--gradient-primary);
+	transition: width 0.3s ease;
+	min-width: 0.5rem; /* mantém um respingo visível mesmo com pouco gasto */
+}
+
+.progress__bar--over {
+	background: linear-gradient(135deg, var(--error) 0%, #e0463f 100%);
+}
+
+.budget-item__foot {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-top: 0.5rem;
+}
+
+.budget-item__pct {
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: var(--on-surface-variant);
+}
+
+.budget-item__pct--over {
+	color: var(--error);
+}
+
+/* ---------- Modal: complementos específicos ---------- */
+/* (.modal/.modal__sheet/.amount-field vêm do dashboard.css) */
+.modal__desc {
+	font-size: 0.875rem;
+	line-height: 1.45;
+	color: var(--on-surface-variant);
+	text-align: center;
+	margin: 0 0 1.25rem;
+}
+
+.modal__actions {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.75rem;
+	margin-top: 0.5rem;
+}
+
+.modal__actions .btn {
+	width: 100%;
+}
+
+/* Botão secundário (Cancelar) — conforme o Design System.
+   Não existe em global.css, então é definido aqui. */
+.btn--secondary {
+	background: var(--surface-container-high);
+	color: var(--primary);
+}
+
+.btn--secondary:hover {
+	filter: brightness(0.97);
+}
