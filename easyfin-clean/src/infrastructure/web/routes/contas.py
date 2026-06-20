@@ -8,8 +8,28 @@ from flask_login import login_user, logout_user, login_required, current_user
 
 
 from src.infrastructure.database.repositories import SQLAlchemyTransacaoRepository, SQLAlchemyCategoriaRepository
+from src.core.entities import Categoria
 
 contas_bp = Blueprint('contas', __name__)
+
+# Categorias criadas automaticamente para todo novo usuário (mock).
+# Os nomes batem com o mapa de ícones em templates/_cat_icones.html.
+CATEGORIAS_PADRAO = [
+    'Alimentação',
+    'Transporte',
+    'Moradia',
+    'Lazer',
+    'Saúde',
+    'Compras',
+    'Salário',
+    'Outros',
+]
+
+
+def _criar_categorias_padrao(usuario_id):
+    repo = SQLAlchemyCategoriaRepository()
+    for nome in CATEGORIAS_PADRAO:
+        repo.salvar(Categoria(id=None, usuario_id=usuario_id, nome=nome, teto=None))
 
 @contas_bp.route('/')
 def home():
@@ -156,6 +176,10 @@ def cadastro():
         user.set_password(senha)
         db.session.add(user)
         db.session.commit()
+
+        # Mock: já popula o novo usuário com categorias padrão (com ícones)
+        _criar_categorias_padrao(user.id)
+
         login_user(user)
         flash('Conta criada e usuário logado')
         return redirect(url_for('contas.dashboard'))

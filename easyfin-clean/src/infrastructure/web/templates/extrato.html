@@ -1,4 +1,5 @@
 {% extends 'base_app.html' %}
+{% import '_cat_icones.html' as icones %}
 
 {# Formata número no padrão brasileiro: 12450.5 -> R$ 12.450,50 #}
 {% macro brl(v) -%}
@@ -87,8 +88,11 @@ R$ {{ "{:,.2f}".format(v | float).replace(",", "X").replace(".", ",").replace("X
 				{% for tx in grupo.transacoes %}
 					{% set is_entrada = tx.tipo == 'ENTRADA' %}
 					<div class="tx-item">
+						{% set nome_cat = categorias_map.get(tx.categoria_id) %}
 						<div class="tx-item__icon {{ 'tx-item__icon--income' if is_entrada else 'tx-item__icon--expense' }}" aria-hidden="true">
-							{% if is_entrada %}
+							{% if nome_cat %}
+								{{ icones.icone_categoria(nome_cat) }}
+							{% elif is_entrada %}
 								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
 									<path d="M12 19V5" />
 									<path d="m5 12 7-7 7 7" />
@@ -102,7 +106,7 @@ R$ {{ "{:,.2f}".format(v | float).replace(",", "X").replace(".", ",").replace("X
 						</div>
 						<div class="tx-item__body">
 							<span class="tx-item__title">
-								{{ categorias_map.get(tx.categoria_id, 'Sem categoria') }}
+								{{ nome_cat or 'Sem categoria' }}
 							</span>
 							{% if tx.descricao %}
 								<span class="tx-item__sub">{{ tx.descricao }}</span>

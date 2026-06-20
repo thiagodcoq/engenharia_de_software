@@ -1,4 +1,5 @@
 {% extends 'base_app.html' %}
+{% import '_cat_icones.html' as icones %}
 
 {# Formata número no padrão brasileiro: 12450.5 -> R$ 12.450,50 #}
 {% macro brl(v) -%}
@@ -57,7 +58,8 @@ R$ {{ "{:,.2f}".format(v | float).replace(",", "X").replace(".", ",").replace("X
 
 				<article class="budget-item">
 					<div class="budget-item__head">
-						<div class="budget-item__info">
+						<span class="budget-item__icon" aria-hidden="true">{{ icones.icone_categoria(cat.nome) }}</span>
+							<div class="budget-item__info">
 							<span class="budget-item__name">{{ cat.nome }}</span>
 							{% if cat.teto %}
 								<span class="budget-item__meta">

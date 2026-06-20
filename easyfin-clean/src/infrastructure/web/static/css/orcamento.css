@@ -40,6 +40,22 @@
 	gap: 0.875rem;
 }
 
+.budget-item__icon {
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: var(--radius-lg);
+	background: var(--surface-container-high);
+	color: var(--primary-container);
+	display: grid;
+	place-items: center;
+	flex-shrink: 0;
+}
+
+.budget-item__icon svg {
+	width: 1.25rem;
+	height: 1.25rem;
+}
+
 .budget-item__info {
 	display: flex;
 	flex-direction: column;
