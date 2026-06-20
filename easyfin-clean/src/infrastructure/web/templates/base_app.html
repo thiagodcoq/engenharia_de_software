@@ -5,6 +5,15 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>{% block title %}EasyFin{% endblock %}</title>
 
+		<!-- Aplica o tema salvo ANTES de pintar a tela (evita flash de tela clara) -->
+		<script>
+			(function () {
+				if (localStorage.getItem('theme') === 'dark') {
+					document.documentElement.setAttribute('data-theme', 'dark');
+				}
+			})();
+		</script>
+
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link

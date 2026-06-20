@@ -16,18 +16,7 @@ R$ {{ "{:,.2f}".format(v | float).replace(",", "X").replace(".", ",").replace("X
 
 {% block body %}
 <div class="app">
-	<!-- Header simples: menu (hambúrguer) à esquerda + título centralizado -->
-	<header class="extrato-header">
-		<!-- TODO backend: endpoint para abrir o menu lateral (drawer). Sem rota ainda. -->
-		<a class="extrato-header__menu" href="#" title="Menu" aria-label="Abrir menu">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-				<path d="M4 6h16" />
-				<path d="M4 12h16" />
-				<path d="M4 18h16" />
-			</svg>
-		</a>
-		<h1 class="extrato-header__title">Extrato</h1>
-	</header>
+	{% include '_topbar.html' %}
 
 	<!-- Mensagens flash -->
 	{% with messages = get_flashed_messages() %}
@@ -176,13 +165,13 @@ R$ {{ "{:,.2f}".format(v | float).replace(",", "X").replace(".", ",").replace("X
 			</svg>
 			Orçamento
 		</a>
-		<button class="nav-item" type="button" disabled>
+		<a class="nav-item" href="{{ url_for('contas.perfil') }}">
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 				<circle cx="12" cy="8" r="4" />
 				<path d="M4 21a8 8 0 0 1 16 0" />
 			</svg>
 			Perfil
-		</button>
+		</a>
 	</nav>
 </div>
 

@@ -13,21 +13,7 @@ R$ {{ "{:,.2f}".format(v | float).replace(",", "X").replace(".", ",").replace("X
 
 {% block body %}
 <div class="app">
-	<!-- Topbar (reusa o padrão do home.html) -->
-	<header class="topbar">
-		<div class="topbar__avatar" aria-hidden="true">{{ user.nome[0] | upper }}</div>
-		<div class="topbar__greeting">
-			<span class="topbar__hello">Planejamento</span>
-			<span class="topbar__name">Orçamento</span>
-		</div>
-		<a class="topbar__action" href="{{ url_for('contas.logout') }}" title="Sair" aria-label="Sair">
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-				<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-				<path d="m16 17 5-5-5-5" />
-				<path d="M21 12H9" />
-			</svg>
-		</a>
-	</header>
+	{% include '_topbar.html' %}
 
 	<!-- Mensagens flash -->
 	{% with messages = get_flashed_messages() %}
@@ -187,13 +173,13 @@ R$ {{ "{:,.2f}".format(v | float).replace(",", "X").replace(".", ",").replace("X
 			</svg>
 			Orçamento
 		</a>
-		<button class="nav-item" type="button" disabled>
+		<a class="nav-item" href="{{ url_for('contas.perfil') }}">
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 				<circle cx="12" cy="8" r="4" />
 				<path d="M4 21a8 8 0 0 1 16 0" />
 			</svg>
 			Perfil
-		</button>
+		</a>
 	</nav>
 </div>
 

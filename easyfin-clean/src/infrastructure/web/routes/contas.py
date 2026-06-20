@@ -113,6 +113,11 @@ def orcamento():
     )
 
 
+@contas_bp.route('/perfil/')
+@login_required
+def perfil():
+    return render_template('perfil.html', user=current_user)
+
 
 @contas_bp.route('/login/', methods=['GET', 'POST'])
 def login():

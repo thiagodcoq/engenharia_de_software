@@ -45,6 +45,51 @@
 
 	/* Sombra ambiente tingida de roxo */
 	--shadow-ambient: 0 24px 48px -12px rgba(72, 0, 178, 0.18);
+
+	/* Cores funcionais usadas como TEXTO (verde entrada / vermelho saída) */
+	--income-text: #00731e;
+	--expense-text: #ba1a1a;
+}
+
+/* ============================================================
+   Modo escuro — sobrescreve apenas os tokens.
+   Ativado por data-theme="dark" no <html> (ver base_app.html).
+   Como tudo usa var(--token), só mudar aqui já tema o app inteiro.
+   ============================================================ */
+:root[data-theme="dark"] {
+	/* Acento roxo mais claro para textos/links/abas legíveis no escuro */
+	--primary: #b69dff;
+	--primary-container: #c9b6ff;
+	--on-primary: #1a0040;
+	/* CTA/hero mantém um gradiente vívido (texto branco continua legível) */
+	--gradient-primary: linear-gradient(135deg, #5b1fd0 0%, #7e3ff2 100%);
+
+	/* Superfícies: base escura; "cards" (lowest) ficam MAIS claros para destacar */
+	--surface: #121216;
+	--surface-container-low: #16161c;
+	--surface-container: #1a1a21;
+	--surface-container-high: #2a2a33;
+	--surface-container-lowest: #1c1c23;
+
+	/* Texto */
+	--on-background: #e7e1ee;
+	--on-surface-variant: #c2bccf;
+
+	/* Acentos funcionais (chips/ícones) — leve ajuste para o fundo escuro */
+	--secondary-container: #1f4d2a;
+	--on-secondary-container: #91f78e;
+	--tertiary-container: #8c1d18;
+	--on-tertiary-container: #ffb6ac;
+	--error: #ffb4ab;
+
+	/* Texto de valores: tons claros legíveis no escuro */
+	--income-text: #7ee08a;
+	--expense-text: #ff8a80;
+
+	--outline-variant: #4a4458;
+
+	/* Sombra mais neutra/escura (o roxo claro some no preto) */
+	--shadow-ambient: 0 24px 48px -12px rgba(0, 0, 0, 0.55);
 }
 
 /* ---------- Reset enxuto ---------- */
