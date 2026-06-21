@@ -38,6 +38,12 @@ class MockTransacaoRepository(TransacaoRepositoryInterface):
                 return True
         return False
 
+    def buscar_por_periodo(self, usuario_id, inicio, fim):
+        return [
+            t for t in self.transacoes.values()
+            if t.usuario_id == usuario_id and inicio <= t.data < fim
+        ]
+
 
 class MockCategoriaRepository(CategoriaRepositoryInterface):
     """Repository mock para testes de categorias."""
@@ -55,6 +61,12 @@ class MockCategoriaRepository(CategoriaRepositoryInterface):
             self.next_id += 1
         self.categorias[categoria.id] = categoria
         return categoria
+
+    def buscar_por_id(self, categoria_id, usuario_id):
+        categoria = self.categorias.get(categoria_id)
+        if categoria and categoria.usuario_id == usuario_id:
+            return categoria
+        return None
 
 
 @pytest.fixture
